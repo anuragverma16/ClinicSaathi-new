@@ -1,7 +1,8 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, Suspense } from 'react';
 import { Outlet, useLocation } from 'react-router-dom';
 import { Sidebar } from './Sidebar.jsx';
 import { Topbar } from './Topbar.jsx';
+import { Spinner } from '../ui/States.jsx';
 
 const COLLAPSE_KEY = 'cs.sidebarCollapsed';
 const readCollapsed = () => { try { return localStorage.getItem(COLLAPSE_KEY) === '1'; } catch { return false; } };
@@ -43,9 +44,13 @@ export function AppShell() {
       <div className="relative flex min-w-0 flex-1 flex-col">
         <Topbar onMenu={() => setMobileOpen(true)} />
         <main id="main" className="flex-1 overflow-y-auto px-4 py-5 sm:px-6 sm:py-6">
-          {/* Keyed by path so each page plays one short CSS entrance. */}
+          {/* Suspense lives here so a lazy page only swaps the content area —
+              the sidebar and top bar stay on screen instead of flashing away.
+              Keyed by path so each page plays one short CSS entrance. */}
           <div key={location.pathname} className="page-in mx-auto max-w-7xl">
-            <Outlet />
+            <Suspense fallback={<div className="flex h-64 items-center justify-center"><Spinner className="h-5 w-5 text-pulse" /></div>}>
+              <Outlet />
+            </Suspense>
           </div>
         </main>
       </div>

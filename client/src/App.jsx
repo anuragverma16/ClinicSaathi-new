@@ -86,7 +86,6 @@ const PatientAssistant = named(() => import('./pages/patient/Portal.jsx'), 'Pati
 // Platform
 const AdminDashboard = lazy(() => import('./pages/admin/AdminDashboard.jsx'));
 const AdminClinics = lazy(() => import('./pages/admin/AdminClinics.jsx'));
-const AdminUsers = lazy(() => import('./pages/admin/AdminUsers.jsx'));
 const AdminAuditLog = lazy(() => import('./pages/admin/AdminAuditLog.jsx'));
 const AdminOperations = lazy(() => import('./pages/admin/AdminOperations.jsx'));
 const PlatformBranches = named(() => import('./pages/admin/PlatformPages.jsx'), 'PlatformBranches');
@@ -138,7 +137,7 @@ export default function App() {
                 <Route path="dashboard" element={<AdminDashboard />} />
                 <Route path="clinics" element={<AdminClinics />} />
                 <Route path="branches" element={<PlatformBranches />} />
-                <Route path="users" element={<AdminUsers />} />
+                <Route path="users" element={<Navigate to="/super-admin/dashboard" replace />} />
                 <Route path="plans" element={<PlatformPlans />} />
                 <Route path="subscriptions" element={<AdminOperations mode="subscriptions" />} />
                 <Route path="revenue" element={<PlatformRevenue />} />

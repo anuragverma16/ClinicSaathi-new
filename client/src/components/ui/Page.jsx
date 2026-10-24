@@ -1,42 +1,62 @@
 import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { X, ChevronLeft, ChevronRight } from 'lucide-react';
 import { gsap, prefersReducedMotion } from '../../animations/gsapUtils.js';
-import { Modal } from './Modal.jsx';
+import { Modal, useDialog } from './Modal.jsx';
 import { Spinner } from './States.jsx';
 import { useCurrentNav } from '../layout/accents.js';
 import { ICONS } from '../layout/navIcons.js';
 
+const greeting = () => {
+  const h = new Date().getHours();
+  return h < 12 ? 'Good morning' : h < 17 ? 'Good afternoon' : 'Good evening';
+};
+
 /**
- * Hero card at the top of every page: the feature's own icon and section
- * colour (looked up from the sidebar nav), a breadcrumb, the title and actions.
+ * Navy banner at the top of every page, matching the sidebar. The feature's
+ * own icon and section colour (looked up from the sidebar nav) tint the glow,
+ * icon tile and watermark, so each feature reads differently at a glance.
+ * Dashboards also get a greeting and today's date.
  */
 export function PageHeader({ title, description, actions, children, icon }) {
   const { item, accent } = useCurrentNav();
   const Icon = icon || ICONS[item?.icon];
+  const isDashboard = item?.to?.endsWith('/dashboard');
   return (
-    <div className="rise-in relative mb-6 overflow-hidden rounded-2xl border border-line/80 bg-surface p-5 shadow-card sm:p-6">
-      <div aria-hidden="true" className={`pointer-events-none absolute inset-x-0 top-0 h-1 bg-gradient-to-r ${accent.grad}`} />
-      <div aria-hidden="true" className={`pointer-events-none absolute -right-16 -top-20 h-56 w-56 rounded-full blur-3xl ${accent.glow}`} />
-      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.35] [background-image:radial-gradient(rgb(var(--line-rgb))_1px,transparent_1px)] [background-size:16px_16px] [mask-image:linear-gradient(to_left,black,transparent_55%)]" />
-      <div className="relative flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+    <div className="hero-dark rise-in relative mb-6 overflow-hidden rounded-2xl bg-navy p-5 text-white shadow-lift sm:p-7">
+      <div aria-hidden="true" className={`pointer-events-none absolute -right-20 -top-24 h-72 w-72 rounded-full blur-3xl ${accent.glow}`} />
+      <div aria-hidden="true" className="pointer-events-none absolute -bottom-32 left-1/4 h-64 w-64 rounded-full bg-sky-500/10 blur-3xl" />
+      <div aria-hidden="true" className="pointer-events-none absolute inset-0 opacity-[0.07] [background-image:radial-gradient(white_1px,transparent_1px)] [background-size:18px_18px] [mask-image:linear-gradient(to_left,black,transparent_60%)]" />
+      <div aria-hidden="true" className={`pointer-events-none absolute inset-x-0 bottom-0 h-[3px] bg-gradient-to-r opacity-80 ${accent.grad}`} />
+      {Icon && <Icon aria-hidden="true" className="pointer-events-none absolute -bottom-8 right-6 hidden h-44 w-44 text-white opacity-[0.05] md:block" strokeWidth={1.2} />}
+
+      <div className="relative flex flex-col gap-5 sm:flex-row sm:items-center sm:justify-between">
         <div className="flex min-w-0 items-start gap-4">
           {Icon && (
-            <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg shadow-black/10 ${accent.grad}`}>
-              <Icon className="h-6 w-6" strokeWidth={1.8} />
+            <span className={`flex h-12 w-12 shrink-0 items-center justify-center rounded-xl bg-gradient-to-br text-white shadow-lg shadow-black/30 ring-1 ring-white/15 sm:h-14 sm:w-14 ${accent.grad}`}>
+              <Icon className="h-6 w-6 sm:h-7 sm:w-7" strokeWidth={1.8} />
             </span>
           )}
           <div className="min-w-0">
-            {item?.section && (
-              <p className={`mb-1 inline-flex items-center gap-1.5 rounded-full px-2 py-0.5 text-[11px] font-semibold uppercase tracking-wider ring-1 ${accent.soft}`}>
-                {item.section}
-              </p>
-            )}
-            <h1 className="font-display text-xl font-semibold tracking-tight text-ink sm:text-[26px]">{title}</h1>
-            {description && <p className="mt-1 max-w-2xl text-sm text-ink-muted">{description}</p>}
+            <div className="mb-1.5 flex flex-wrap items-center gap-2">
+              {item?.section && (
+                <span className={`inline-flex items-center gap-1.5 rounded-full px-2.5 py-0.5 text-[11px] font-semibold uppercase tracking-wider ${accent.tile}`}>
+                  <span className={`h-1.5 w-1.5 rounded-full ${accent.dot}`} /> {item.section}
+                </span>
+              )}
+              {isDashboard && (
+                <span className="text-xs text-ink-muted">
+                  {new Date().toLocaleDateString('en-IN', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' })}
+                </span>
+              )}
+            </div>
+            {isDashboard && <p className="text-sm font-medium text-ink-muted">{greeting()}</p>}
+            <h1 className="font-display text-xl font-semibold tracking-tight text-white sm:text-[28px]">{title}</h1>
+            {description && <p className="mt-1.5 max-w-2xl text-sm leading-relaxed text-ink-soft/80">{description}</p>}
             {children}
           </div>
         </div>
-        {actions && <div className="flex flex-wrap items-center gap-2">{actions}</div>}
+        {actions && <div className="flex shrink-0 flex-wrap items-center gap-2">{actions}</div>}
       </div>
     </div>
   );
@@ -56,32 +76,30 @@ export function Tabs({ tabs, value, onChange }) {
   );
 }
 
-/** Right-hand panel for record detail and quick edits. Escape and backdrop close it. */
+/**
+ * Right-hand panel for record detail and quick edits. Portalled into <body>
+ * like Modal, full-height with a fixed header and footer around a scrolling body.
+ */
 export function Drawer({ open, onClose, title, subtitle, children, footer, width = 'max-w-xl' }) {
   const panel = useRef(null);
-  useEffect(() => {
-    if (!open) return undefined;
-    const onKey = (e) => e.key === 'Escape' && onClose();
-    document.addEventListener('keydown', onKey);
-    if (!prefersReducedMotion() && panel.current) gsap.fromTo(panel.current, { x: 40, opacity: 0 }, { x: 0, opacity: 1, duration: 0.22, ease: 'power2.out' });
-    return () => document.removeEventListener('keydown', onKey);
-  }, [open, onClose]);
+  useDialog(open, onClose, panel, { from: { x: 48, opacity: 0 }, to: { x: 0, opacity: 1 } });
   if (!open) return null;
-  return (
-    <div className="fixed inset-0 z-50 flex justify-end bg-black/30" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
-      <aside ref={panel} role="dialog" aria-modal="true" aria-label={title}
-             className={`flex h-full w-full ${width} flex-col bg-surface shadow-lift`}>
-        <header className="flex items-start justify-between gap-3 border-b border-line px-5 py-4">
+  return createPortal(
+    <div className="fixed inset-0 z-[60] flex justify-end bg-navy/45 backdrop-blur-[3px]" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+      <aside ref={panel} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}
+             className={`flex h-[100dvh] w-full ${width} flex-col bg-paper shadow-2xl outline-none`}>
+        <header className="flex shrink-0 items-start justify-between gap-3 border-b border-line bg-surface px-5 py-4 sm:px-6">
           <div className="min-w-0">
-            <h2 className="truncate font-display text-lg font-semibold">{title}</h2>
-            {subtitle && <p className="text-sm text-ink-muted">{subtitle}</p>}
+            <h2 className="truncate font-display text-lg font-semibold text-ink">{title}</h2>
+            {subtitle && <p className="mt-0.5 text-sm text-ink-muted">{subtitle}</p>}
           </div>
-          <button onClick={onClose} aria-label="Close" className="rounded-lg p-1.5 text-ink-muted hover:bg-paper-sunk"><X className="h-4 w-4" /></button>
+          <button onClick={onClose} aria-label="Close" className="-mr-1.5 rounded-lg p-1.5 text-ink-muted transition-colors hover:bg-paper-sunk hover:text-ink"><X className="h-5 w-5" /></button>
         </header>
-        <div className="flex-1 overflow-y-auto px-5 py-4">{children}</div>
-        {footer && <footer className="flex flex-wrap justify-end gap-2 border-t border-line px-5 py-3">{footer}</footer>}
+        <div className="min-h-0 flex-1 overflow-y-auto overscroll-contain px-5 py-5 sm:px-6">{children}</div>
+        {footer && <footer className="flex shrink-0 flex-wrap items-center justify-end gap-2 border-t border-line bg-surface px-5 py-3.5 sm:px-6">{footer}</footer>}
       </aside>
-    </div>
+    </div>,
+    document.body,
   );
 }
 
@@ -99,14 +117,26 @@ export function Pagination({ meta, page, onPage }) {
 }
 
 /** Label + control + inline error, so every form reads the same way. */
-export function Field({ label, htmlFor, error, hint, children, className = '' }) {
+export function Field({ label, htmlFor, error, hint, required, children, className = '' }) {
   return (
-    <div className={className}>
-      {label && <label className="label" htmlFor={htmlFor}>{label}</label>}
+    <div className={`${className} ${error ? 'field-error' : ''}`}>
+      {label && <label className="label" htmlFor={htmlFor}>{label}{required && <span className="ml-0.5 text-alert">*</span>}</label>}
       {children}
-      {hint && !error && <p className="mt-1 text-xs text-ink-muted">{hint}</p>}
-      {error && <p role="alert" className="mt-1 text-xs text-alert">{error}</p>}
+      {hint && !error && <p className="mt-1.5 text-xs leading-relaxed text-ink-muted">{hint}</p>}
+      {error && <p role="alert" className="mt-1.5 text-xs font-medium text-alert">{error}</p>}
     </div>
+  );
+}
+
+/** Titled group of fields inside a form, so long forms read as clear steps. */
+export function FormSection({ title, description, children, className = '' }) {
+  return (
+    <fieldset className={`rounded-xl border border-line bg-paper/50 p-4 sm:p-5 ${className}`}>
+      {title && <legend className="sr-only">{title}</legend>}
+      {title && <p className="text-sm font-semibold text-ink">{title}</p>}
+      {description && <p className="mt-0.5 text-xs leading-relaxed text-ink-muted">{description}</p>}
+      <div className={title || description ? 'mt-4 space-y-4' : 'space-y-4'}>{children}</div>
+    </fieldset>
   );
 }
 
@@ -148,12 +178,18 @@ export function useReasonPrompt() {
   return [ask, dialog];
 }
 
+/** Card with a title row; the title's marker takes the page's section colour. */
 export function Section({ title, actions, children, className = '' }) {
+  const { accent } = useCurrentNav();
   return (
     <section className={`card p-5 ${className}`}>
       {(title || actions) && (
         <div className="mb-4 flex items-center justify-between gap-3">
-          {title && <h2 className="section-title">{title}</h2>}
+          {title && (
+            <h2 className="section-title flex items-center gap-2.5">
+              <span aria-hidden="true" className={`h-4 w-1 rounded-full bg-gradient-to-b ${accent.grad}`} />{title}
+            </h2>
+          )}
           {actions}
         </div>
       )}

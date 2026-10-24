@@ -190,19 +190,44 @@ router.get('/staff', requirePermission('staff:read'), catchAsync(async (req, res
   ok(res, users);
 }));
 
-router.post('/staff', owner, validate(staffSchema), catchAsync(async (req, res) => {
-  await checkLinks(req, req.body);
-  const email = req.body.email.toLowerCase();
+// A doctor login can bring its own new profile, so the owner adds a doctor in one step.
+const createStaffSchema = staffSchema.extend({
+  newDoctor: z.object({
+    specialization: z.string().trim().max(80).optional(),
+    qualification: z.string().trim().max(120).optional(),
+    registrationNumber: z.string().trim().max(40).optional(),
+    consultationFee: z.number().min(0).max(100000).optional(),
+  }).optional(),
+});
+
+router.post('/staff', owner, validate(createStaffSchema), catchAsync(async (req, res) => {
+  const { newDoctor, ...body } = req.body;
+  const makeProfile = body.role === ROLES.DOCTOR && !body.doctorId && Boolean(newDoctor);
+  await checkLinks(req, body);
+  const email = body.email.toLowerCase();
   if (await User.exists({ clinicId: req.tenant.clinicId, email })) throw ApiError.conflict('Someone in your clinic already uses that email', 'EMAIL_IN_USE');
+  if (makeProfile) await assertWithinLimit(req.tenant.clinicId, 'doctors', await scoped(Doctor, req).countDocuments({ isActive: true }));
+
   const user = new User({
-    name: req.body.name, email, phone: normalisePhone(req.body.phone), role: req.body.role,
-    clinicId: req.tenant.clinicId, branchId: req.body.branchId || undefined,
-    doctorId: req.body.doctorId || undefined, invitedByUserId: req.user._id,
+    name: body.name, email, phone: normalisePhone(body.phone), role: body.role,
+    clinicId: req.tenant.clinicId, branchId: body.branchId || undefined,
+    doctorId: body.doctorId || undefined, invitedByUserId: req.user._id,
   });
-  await user.setPassword(req.body.password);
-  await user.save();
-  if (req.body.doctorId) await scoped(Doctor, req).updateOne({ _id: req.body.doctorId }, { userId: user._id });
-  recordAudit(req, { action: 'STAFF_CREATED', entityType: 'User', entityId: user._id, after: { email, role: user.role } });
+  await user.setPassword(body.password);
+
+  let doctor = null;
+  if (makeProfile) {
+    doctor = await scoped(Doctor, req).create({ ...newDoctor, name: body.name, branchId: body.branchId || undefined, userId: user._id });
+    user.doctorId = doctor._id;
+  }
+  try {
+    await user.save();
+  } catch (e) {
+    if (doctor) await scoped(Doctor, req).deleteOne({ _id: doctor._id });
+    throw e;
+  }
+  if (body.doctorId) await scoped(Doctor, req).updateOne({ _id: body.doctorId }, { userId: user._id });
+  recordAudit(req, { action: 'STAFF_CREATED', entityType: 'User', entityId: user._id, after: { email, role: user.role, doctorProfileCreated: Boolean(doctor) } });
   created(res, user.toSafeJSON());
 }));
 

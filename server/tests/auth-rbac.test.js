@@ -44,11 +44,33 @@ test('there is no public sign-up; the super admin onboards clinics with an owner
   const plat = await ctx.api('GET', '/platform/overview', { token: login.data.accessToken });
   assert.equal(plat.status, 403);
 
+  // Staff are the clinic owner's to add; the platform only provisions owners.
   const doc = await ctx.api('POST', '/platform/users', { token: rootToken, body: {
     name: 'Dr Dev', email: 'dev@onboarded.test', phone: '9000000097', password: 'Password123', role: 'DOCTOR', clinicId: c.data._id, specialization: 'ENT',
   } });
-  assert.equal(doc.status, 201);
-  assert.ok(doc.data.doctorId, 'doctor login is linked to a doctor profile');
+  assert.equal(doc.status, 400);
+
+  const owner = await ctx.api('POST', '/platform/users', { token: rootToken, body: {
+    name: 'Second Owner', email: 'owner2@onboarded.test', phone: '9000000096', password: 'Password123', role: 'CLINIC_OWNER', clinicId: c.data._id,
+  } });
+  assert.equal(owner.status, 201);
+  assert.equal(owner.data.role, 'CLINIC_OWNER');
+});
+
+test('clinic owner adds a doctor login and its profile in one step', async () => {
+  const r = await ctx.api('POST', '/clinics/staff', { token: A.tokens.CLINIC_OWNER, body: {
+    name: 'Dr Meera', email: 'meera@alpha.test', phone: '9000000095', role: 'DOCTOR', password: 'Password123',
+    newDoctor: { specialization: 'Dermatology', consultationFee: 600 },
+  } });
+  assert.equal(r.status, 201);
+  assert.ok(r.data.doctorId, 'login is linked to the new doctor profile');
+  const login = await ctx.api('POST', '/auth/login', { body: { identifier: 'meera@alpha.test', password: 'Password123' } });
+  assert.equal(login.status, 200);
+});
+
+test('super admin cannot change a clinic staff member\'s role', async () => {
+  const r = await ctx.api('PATCH', `/platform/users/${A.users.RECEPTIONIST._id}`, { token: rootToken, body: { role: 'DOCTOR' } });
+  assert.equal(r.status, 400);
 });
 
 test('wrong passwords are rejected and repeated failures lock the account', async () => {

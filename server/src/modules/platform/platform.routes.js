@@ -228,53 +228,33 @@ router.get('/users', catchAsync(async (req, res) => {
   ok(res, users, { total, page: Number(page), limit: Number(limit) });
 }));
 
-// Super admins are provisioned via the seed script, not this endpoint — every
-// role it can create belongs to a clinic, so clinicId is always required.
-const CREATABLE_ROLES = Object.values(ROLES).filter((r) => r !== ROLES.SUPER_ADMIN);
-
+// The platform only provisions clinic owners. Every other panel login
+// (branch manager, doctor, front desk, accounts, lab) is added by that
+// clinic's owner from their own Staff page (/clinics/staff), never here.
 const createUserSchema = z.object({
   name: z.string().trim().min(2),
   email: z.string().trim().email(),
   phone: z.string().trim().min(10),
   password: loginPassword,
-  role: z.enum(CREATABLE_ROLES.filter((r) => r !== ROLES.PATIENT)),
-  clinicId: z.string().min(1, 'Choose a clinic for this role'),
-  branchId: z.string().optional().or(z.literal('')),
-  // Doctors get a clinical profile created and linked so their panel works immediately.
-  specialization: z.string().trim().max(80).optional(),
-  consultationFee: z.coerce.number().min(0).optional(),
+  role: z.literal(ROLES.CLINIC_OWNER, { errorMap: () => ({ message: 'Super admin can only add clinic owners. Staff are added by the clinic owner.' }) })
+    .default(ROLES.CLINIC_OWNER),
+  clinicId: z.string().min(1, 'Choose a clinic for this owner'),
 });
 
-/** Super admin provisioning any clinic panel login directly. */
+/** Super admin adding an owner login to a clinic. */
 router.post('/users', validate(createUserSchema), catchAsync(async (req, res) => {
-  const { name, password, role, clinicId, specialization, consultationFee } = req.body;
+  const { name, password, role, clinicId } = req.body;
   const email = req.body.email.toLowerCase();
   const phone = normalisePhone(req.body.phone);
-  const branchId = req.body.branchId || undefined;
 
   if (!db.isValidObjectId(clinicId) || !(await Clinic.exists({ _id: clinicId }))) {
     throw ApiError.badRequest('That clinic does not exist', 'CLINIC_NOT_FOUND');
   }
-  if (role === ROLES.BRANCH_MANAGER && !branchId) throw ApiError.badRequest('Assign a branch to a branch manager', 'BRANCH_REQUIRED');
-  if (branchId && !(await Branch.exists({ _id: branchId }).setOptions({ clinicId }))) {
-    throw ApiError.badRequest('That branch does not belong to this clinic', 'BRANCH_NOT_FOUND');
-  }
   if (await User.exists({ clinicId, email })) throw ApiError.conflict('Someone in this clinic already uses that email', 'EMAIL_IN_USE');
 
-  const user = new User({ name, email, phone, role, clinicId, branchId, invitedByUserId: req.user._id });
+  const user = new User({ name, email, phone, role, clinicId, invitedByUserId: req.user._id });
   await user.setPassword(password);
-
-  let doctor = null;
-  if (role === ROLES.DOCTOR) {
-    doctor = await Doctor.create({ clinicId, branchId, name, specialization, consultationFee: consultationFee ?? 0, userId: user._id });
-    user.doctorId = doctor._id;
-  }
-  try {
-    await user.save();
-  } catch (e) {
-    if (doctor) await Doctor.deleteOne({ _id: doctor._id }).setOptions({ clinicId });
-    throw e;
-  }
+  await user.save();
 
   recordAudit(req, { action: 'PLATFORM_USER_CREATED', entityType: 'User', entityId: user._id, after: { email, role, clinicId }, clinicId: user.clinicId });
   created(res, user.toSafeJSON());
@@ -296,14 +276,13 @@ router.patch('/users/:id/status', catchAsync(async (req, res) => {
   ok(res, user);
 }));
 
-// Super admin is never assignable through the API — only the provisioning script creates one.
-const userUpdateSchema = z.object({ name: z.string().min(2).optional(), phone: z.string().min(10).optional(), role: z.enum(CREATABLE_ROLES).optional(), branchId: z.string().nullable().optional() }).refine((data) => Object.keys(data).length > 0);
+// Name and phone only. Roles and branch assignments are the clinic owner's to
+// manage from their Staff page; the platform never re-roles a clinic's team.
+const userUpdateSchema = z.object({ name: z.string().min(2).optional(), phone: z.string().min(10).optional() }).refine((data) => Object.keys(data).length > 0);
 router.patch('/users/:id', validate(userUpdateSchema), catchAsync(async (req, res) => {
   const target = await User.findById(req.params.id);
   if (!target) throw ApiError.notFound('User not found');
-  if (target.role === ROLES.SUPER_ADMIN && req.body.role) throw ApiError.badRequest('Super admin roles cannot be changed here');
   const update = { ...req.body };
-  if (update.role && update.role !== target.role) update.refreshTokenHash = undefined;
   const user = await User.findByIdAndUpdate(req.params.id, update, { new: true }).select('-passwordHash -refreshTokenHash');
   recordAudit(req, { action: 'PLATFORM_USER_UPDATED', entityType: 'User', entityId: user._id, after: req.body, clinicId: user.clinicId });
   ok(res, user);

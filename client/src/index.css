@@ -44,6 +44,22 @@
     --line-rgb: 34 48 44;
   }
 
+  /* Navy page banner (PageHeader). Re-points the same tokens so buttons,
+     inputs and muted text passed in as actions/children read on navy with
+     no per-page class changes. */
+  .hero-dark {
+    --ink-rgb: 255 255 255;
+    --ink-soft-rgb: 226 233 243;
+    --ink-muted-rgb: 168 186 211;
+    --surface-rgb: 22 45 79;
+    --paper-rgb: 18 38 68;
+    --paper-sunk-rgb: 32 60 99;
+    --line-rgb: 46 74 112;
+    --pulse-rgb: 20 184 166;
+    --pulse-deep-rgb: 13 148 136;
+    color-scheme: dark;
+  }
+
   html { -webkit-font-smoothing: antialiased; }
   body {
     @apply bg-paper text-ink font-sans antialiased overflow-x-hidden;
@@ -56,11 +72,24 @@
 
 @layer components {
   .field {
-    @apply w-full rounded-lg border border-line bg-surface px-3 py-2.5 text-[15px]
-           placeholder:text-ink-muted/60 focus:border-pulse focus:outline-none
-           focus:ring-2 focus:ring-pulse/20 disabled:bg-paper-sunk;
+    @apply block min-h-[44px] w-full min-w-0 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-[15px] text-ink
+           shadow-[0_1px_2px_rgba(11,31,58,0.04)] transition-[border-color,box-shadow,background-color] duration-150
+           placeholder:text-ink-muted/60 hover:border-ink-muted/40
+           focus:border-pulse focus:outline-none focus:ring-4 focus:ring-pulse/15
+           disabled:cursor-not-allowed disabled:bg-paper-sunk disabled:text-ink-muted disabled:hover:border-line;
   }
-  .label { @apply mb-1.5 block text-sm font-medium text-ink-soft; }
+  /* Native selects get the same chevron everywhere instead of each browser's own. */
+  select.field, select.field-sm {
+    @apply cursor-pointer appearance-none bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E6E85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+  }
+  textarea.field { @apply min-h-[96px] resize-y leading-relaxed; }
+  input[type='checkbox'].field, input[type='radio'].field { @apply min-h-0 w-auto; }
+  .field-error .field, .field-error .field-sm { @apply border-alert/60 focus:border-alert focus:ring-alert/15; }
+  .label { @apply mb-1.5 block text-[13px] font-semibold text-ink-soft; }
+  input[type='checkbox'], input[type='radio'] { accent-color: rgb(var(--pulse-rgb)); }
   .card { @apply rounded-2xl border border-line/80 bg-surface shadow-card; }
   /* A card that reacts to the pointer — for clickable tiles, not tables. */
   .card-hover { @apply transition-all duration-200 hover:-translate-y-0.5 hover:border-pulse/30 hover:shadow-lift; }
@@ -85,7 +114,7 @@
   .btn-quiet { @apply btn text-ink-muted hover:bg-paper-sunk hover:text-ink; }
   .btn-danger { @apply btn border border-alert/30 bg-surface text-alert hover:bg-alert-soft; }
   .btn-sm { @apply px-2.5 py-1.5 text-xs; }
-  .field-sm { @apply field w-auto py-2 text-sm; }
+  .field-sm { @apply field min-h-[38px] w-auto rounded-lg py-1.5 text-sm; }
   .section-title { @apply font-display text-[15px] font-semibold text-ink; }
   .muted { @apply text-sm text-ink-muted; }
 }

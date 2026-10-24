@@ -1,14 +1,14 @@
 import { useEffect, useState } from 'react';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { Search, Ban, CheckCircle2, Plus } from 'lucide-react';
+import { Search, Ban, CheckCircle2, Plus, Building2, Check, Eye, EyeOff, Wand2, Copy } from 'lucide-react';
 import { api, unwrap } from '../../lib/api.js';
 import { DataTable } from '../../components/ui/DataTable.jsx';
 import { StatusBadge } from '../../components/ui/StatusBadge.jsx';
 import { Modal } from '../../components/ui/Modal.jsx';
 import { Spinner } from '../../components/ui/States.jsx';
 import { date } from '../../lib/format.js';
-import { PageHeader } from '../../components/ui/Page.jsx';
+import { PageHeader, Field, FormSection, fieldErrors } from '../../components/ui/Page.jsx';
 
 const PLANS = ['STARTER', 'GROWTH', 'PRO', 'ENTERPRISE'];
 const STATUSES = ['TRIALING', 'ACTIVE', 'EXPIRED', 'PAST_DUE', 'CANCELLED'];
@@ -107,131 +107,133 @@ export default function AdminClinics() {
   );
 }
 
+const PLAN_INFO = {
+  STARTER: { price: '₹999', note: '1 doctor · booking & reminders' },
+  GROWTH: { price: '₹2,999', note: '5 doctors · queue, billing, reports' },
+  PRO: { price: '₹5,999', note: '25 doctors · AI & campaigns' },
+  ENTERPRISE: { price: 'Custom', note: 'Unlimited doctors & branches' },
+};
+const STRONG_PW = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
+const genPassword = () => {
+  const pick = (s) => s[crypto.getRandomValues(new Uint32Array(1))[0] % s.length];
+  const l = 'abcdefghjkmnpqrstuvwxyzABCDEFGHJKLMNPQRSTUVWXYZ';
+  return `${Array.from({ length: 6 }, () => pick(l)).join('')}${Array.from({ length: 3 }, () => pick('23456789')).join('')}${pick('@#$%')}`;
+};
+
 function CreateClinicModal({ open, onClose }) {
   const qc = useQueryClient();
-  const empty = { name: '', email: '', phone: '', city: '', plan: 'STARTER', status: 'TRIALING', owner: { name: '', email: '', phone: '', password: '' } };
+  const empty = () => ({ name: '', email: '', phone: '', city: '', plan: 'STARTER', status: 'TRIALING', owner: { name: '', email: '', phone: '', password: genPassword() } });
   const [form, setForm] = useState(empty);
-  const set = (key, value) => setForm((current) => ({ ...current, [key]: value }));
-  const setOwner = (key, value) => setForm((current) => ({ ...current, owner: { ...current.owner, [key]: value } }));
+  const [errors, setErrors] = useState({});
+  const [showPw, setShowPw] = useState(true);
+  const set = (key, value) => { setForm((c) => ({ ...c, [key]: value })); setErrors((e) => ({ ...e, [key]: undefined })); };
+  const setOwner = (key, value) => { setForm((c) => ({ ...c, owner: { ...c.owner, [key]: value } })); setErrors((e) => ({ ...e, [`owner.${key}`]: undefined })); };
+  const close = () => { setForm(empty()); setErrors({}); onClose(); };
 
   const create = useMutation({
     mutationFn: () => api.post('/platform/clinics', form),
     onSuccess: () => {
-      toast.success(`Clinic created — owner can sign in as ${form.owner.email}`);
+      toast.success(`Clinic created. Owner signs in as ${form.owner.email}`);
       qc.invalidateQueries({ queryKey: ['platform'] });
-      setForm(empty);
-      onClose();
+      close();
     },
-    onError: (error) => toast.error(error.message),
+    onError: (e) => { setErrors(fieldErrors(e)); toast.error(e.message); },
   });
 
-  const canSubmit = form.name.trim().length > 1
-    && (!form.email || form.email.includes('@'))
-    && (!form.phone || form.phone.length >= 10)
-    && form.owner.name.trim().length > 1 && form.owner.email.includes('@')
-    && form.owner.phone.length >= 10 && /^(?=.*[A-Za-z])(?=.*\d).{8,}$/.test(form.owner.password);
+  const validate = () => {
+    const e = {};
+    const digits = (s) => s.replace(/\D/g, '').length;
+    if (form.name.trim().length < 2) e.name = 'Enter the clinic name';
+    if (form.email && !form.email.includes('@')) e.email = 'Enter a valid email or leave it blank';
+    if (form.phone && digits(form.phone) < 10) e.phone = 'Enter a 10-digit number or leave it blank';
+    if (form.owner.name.trim().length < 2) e['owner.name'] = 'Enter the owner name';
+    if (digits(form.owner.phone) < 10) e['owner.phone'] = 'Enter a 10-digit mobile number';
+    if (!form.owner.email.includes('@')) e['owner.email'] = 'The owner signs in with this email';
+    if (!STRONG_PW.test(form.owner.password)) e['owner.password'] = 'At least 8 characters with a letter and a number';
+    setErrors(e);
+    return !Object.keys(e).length;
+  };
+
+  const copyLogin = () => navigator.clipboard?.writeText(`ClinicSaathi sign-in\nURL: ${window.location.origin}/login\nEmail: ${form.owner.email}\nPassword: ${form.owner.password}`)
+    .then(() => toast.success('Sign-in details copied'), () => {});
 
   return (
-    <Modal
-      open={open}
-      onClose={onClose}
-      title="Create clinic"
+    <Modal open={open} onClose={close} width="max-w-2xl" icon={Building2}
+      title="Create a clinic" subtitle="Set up the clinic, its plan and the owner's sign-in."
       footer={(
         <>
-          <button onClick={onClose} className="btn-ghost">Cancel</button>
-          <button
-            onClick={() => create.mutate()}
-            disabled={!canSubmit || create.isPending}
-            className="btn-primary disabled:cursor-not-allowed disabled:opacity-50">
+          <button onClick={close} className="btn-ghost">Cancel</button>
+          <button onClick={() => validate() && create.mutate()} disabled={create.isPending} className="btn-primary">
             {create.isPending && <Spinner />} Create clinic
           </button>
         </>
       )}>
-      <div className="space-y-4">
-        <div>
-          <label className="label" htmlFor="cname">Clinic name</label>
-          <input
-            id="cname"
-            className="field transition-colors duration-150"
-            value={form.name}
-            onChange={(e) => set('name', e.target.value)}
-            aria-label="Clinic name" />
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="label" htmlFor="cemail">Email</label>
-            <input
-              id="cemail"
-              type="email"
-              className="field transition-colors duration-150"
-              value={form.email}
-              onChange={(e) => set('email', e.target.value)}
-              aria-label="Clinic email" />
-          </div>
-          <div>
-            <label className="label" htmlFor="cphone">Phone</label>
-            <input
-              id="cphone"
-              className="field transition-colors duration-150"
-              value={form.phone}
-              onChange={(e) => set('phone', e.target.value)}
-              aria-label="Clinic phone" />
-          </div>
-        </div>
-
-        <div className="grid gap-4 sm:grid-cols-2">
-          <div>
-            <label className="label" htmlFor="cplan">Plan</label>
-            <select
-              id="cplan"
-              className="field transition-colors duration-150"
-              value={form.plan}
-              onChange={(e) => set('plan', e.target.value)}
-              aria-label="Subscription plan">
-              {PLANS.map((plan) => (
-                <option key={plan} value={plan}>{plan.replace('_', ' ')}</option>
-              ))}
-            </select>
-          </div>
-          <div>
-            <label className="label" htmlFor="cstatus">Subscription status</label>
-            <select
-              id="cstatus"
-              className="field transition-colors duration-150"
-              value={form.status}
-              onChange={(e) => set('status', e.target.value)}
-              aria-label="Subscription status">
-              {STATUSES.map((status) => (
-                <option key={status} value={status}>{status.replace('_', ' ')}</option>
-              ))}
-            </select>
-          </div>
-        </div>
-
-        <div className="rounded-lg border border-line bg-paper-sunk/50 p-4">
-          <p className="text-sm font-semibold text-ink">Clinic owner login</p>
-          <p className="mb-3 text-xs text-ink-muted">The owner signs in with these details and can then add doctors, staff and branches.</p>
+      <div className="space-y-5">
+        <FormSection title="Clinic details" description="Shown to patients on booking pages and receipts.">
+          <Field label="Clinic name" htmlFor="cname" error={errors.name} required>
+            <input id="cname" className="field" placeholder="e.g. Aastha Clinic" value={form.name} onChange={(e) => set('name', e.target.value)} />
+          </Field>
           <div className="grid gap-4 sm:grid-cols-2">
-            <div>
-              <label className="label" htmlFor="oname">Owner name</label>
-              <input id="oname" className="field" value={form.owner.name} onChange={(e) => setOwner('name', e.target.value)} />
-            </div>
-            <div>
-              <label className="label" htmlFor="ophone">Owner mobile</label>
-              <input id="ophone" type="tel" className="field" value={form.owner.phone} onChange={(e) => setOwner('phone', e.target.value)} />
-            </div>
-            <div>
-              <label className="label" htmlFor="oemail">Owner email (login)</label>
-              <input id="oemail" type="email" autoComplete="off" className="field" value={form.owner.email} onChange={(e) => setOwner('email', e.target.value)} />
-            </div>
-            <div>
-              <label className="label" htmlFor="opass">Password</label>
-              <input id="opass" type="text" autoComplete="new-password" className="field" placeholder="8+ chars, letter and number"
-                     value={form.owner.password} onChange={(e) => setOwner('password', e.target.value)} />
-            </div>
+            <Field label="Clinic email" htmlFor="cemail" error={errors.email} hint="Optional">
+              <input id="cemail" type="email" className="field" placeholder="hello@clinic.com" value={form.email} onChange={(e) => set('email', e.target.value)} />
+            </Field>
+            <Field label="Clinic phone" htmlFor="cphone" error={errors.phone} hint="Optional">
+              <input id="cphone" type="tel" inputMode="numeric" className="field" placeholder="98765 43210" value={form.phone} onChange={(e) => set('phone', e.target.value)} />
+            </Field>
           </div>
-        </div>
+        </FormSection>
+
+        <FormSection title="Plan" description="You can change the plan any time from the clinic's details.">
+          <div role="radiogroup" aria-label="Plan" className="grid gap-2.5 sm:grid-cols-2">
+            {PLANS.map((p) => {
+              const on = form.plan === p;
+              return (
+                <button key={p} type="button" role="radio" aria-checked={on} onClick={() => set('plan', p)}
+                        className={`relative rounded-xl border p-3 text-left transition-all ${on ? 'border-transparent bg-surface shadow-card ring-2 ring-pulse' : 'border-line bg-surface hover:border-ink-muted/40'}`}>
+                  <span className="flex items-baseline justify-between gap-2 pr-6">
+                    <span className="text-sm font-semibold text-ink">{p.charAt(0) + p.slice(1).toLowerCase()}</span>
+                    <span className="text-sm font-semibold text-pulse-deep">{PLAN_INFO[p].price}<span className="text-xs font-normal text-ink-muted">{p === 'ENTERPRISE' ? '' : '/mo'}</span></span>
+                  </span>
+                  <span className="mt-0.5 block text-xs text-ink-muted">{PLAN_INFO[p].note}</span>
+                  {on && <span className="absolute right-2.5 top-2.5 flex h-5 w-5 items-center justify-center rounded-full bg-pulse text-white"><Check className="h-3 w-3" strokeWidth={3} /></span>}
+                </button>
+              );
+            })}
+          </div>
+          <Field label="Subscription status" htmlFor="cstatus">
+            <select id="cstatus" className="field" value={form.status} onChange={(e) => set('status', e.target.value)}>
+              {STATUSES.map((s) => <option key={s} value={s}>{s.charAt(0) + s.slice(1).toLowerCase().replace('_', ' ')}</option>)}
+            </select>
+          </Field>
+        </FormSection>
+
+        <FormSection title="Clinic owner login" description="The owner signs in with these details, then adds their own doctors, staff and branches.">
+          <div className="grid gap-4 sm:grid-cols-2">
+            <Field label="Owner name" htmlFor="oname" error={errors['owner.name']} required>
+              <input id="oname" className="field" placeholder="e.g. Dr Anil Gupta" value={form.owner.name} onChange={(e) => setOwner('name', e.target.value)} />
+            </Field>
+            <Field label="Owner mobile" htmlFor="ophone" error={errors['owner.phone']} required>
+              <input id="ophone" type="tel" inputMode="numeric" className="field" placeholder="98765 43210" value={form.owner.phone} onChange={(e) => setOwner('phone', e.target.value)} />
+            </Field>
+          </div>
+          <Field label="Owner email (used to sign in)" htmlFor="oemail" error={errors['owner.email']} required>
+            <input id="oemail" type="email" autoComplete="off" className="field" placeholder="owner@clinic.com" value={form.owner.email} onChange={(e) => setOwner('email', e.target.value)} />
+          </Field>
+          <Field label="Temporary password" htmlFor="opass" error={errors['owner.password']} required hint="Generated for you. Copy the details and share them privately with the owner.">
+            <div className="flex gap-2">
+              <div className="relative min-w-0 flex-1">
+                <input id="opass" type={showPw ? 'text' : 'password'} autoComplete="new-password" className="field pr-10 font-mono"
+                       value={form.owner.password} onChange={(e) => setOwner('password', e.target.value)} />
+                <button type="button" onClick={() => setShowPw((s) => !s)} aria-label={showPw ? 'Hide password' : 'Show password'}
+                        className="absolute right-2 top-1/2 -translate-y-1/2 rounded p-1 text-ink-muted hover:text-ink">
+                  {showPw ? <EyeOff className="h-4 w-4" /> : <Eye className="h-4 w-4" />}
+                </button>
+              </div>
+              <button type="button" className="btn-ghost px-3" onClick={() => setOwner('password', genPassword())} title="Generate a new password"><Wand2 className="h-4 w-4" /></button>
+              <button type="button" className="btn-ghost px-3" onClick={copyLogin} title="Copy sign-in details"><Copy className="h-4 w-4" /></button>
+            </div>
+          </Field>
+        </FormSection>
       </div>
     </Modal>
   );

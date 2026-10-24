@@ -7,7 +7,6 @@ export const ROLE_NAV = {
     { to: '/super-admin/dashboard', label: 'Overview', icon: 'LayoutDashboard', section: 'Overview' },
     { to: '/super-admin/clinics', label: 'Clinics', icon: 'Building2', section: 'Tenants' },
     { to: '/super-admin/branches', label: 'Branches', icon: 'GitBranch', section: 'Tenants' },
-    { to: '/super-admin/users', label: 'Users and Roles', icon: 'Users', section: 'Tenants' },
     { to: '/super-admin/plans', label: 'Subscription Plans', icon: 'Layers', section: 'Business' },
     { to: '/super-admin/revenue', label: 'Platform Revenue', icon: 'IndianRupee', section: 'Business' },
     { to: '/super-admin/integrations', label: 'Integrations', icon: 'Plug', section: 'System' },
