@@ -5,8 +5,7 @@
 @layer base {
   :root {
     /* Light palette — the internal clinic/admin app's theme: navy text and
-       chrome, teal for action, white surfaces on a cool neutral page.
-       Unscoped, so every page uses it unless it sits inside .theme-dark. */
+       chrome, teal for action, white surfaces on a cool neutral page. */
     --ink-rgb: 11 31 58;
     --ink-soft-rgb: 41 63 96;
     --ink-muted-rgb: 94 110 133;
@@ -23,10 +22,25 @@
     --line-rgb: 223 229 238;
   }
 
-  /* Dark palette — wraps only the public marketing site (MarketingLayout).
-     Same tokens, same components, no per-file class changes: everything
-     that already renders with bg-paper/text-ink/border-line/etc. re-themes
-     automatically inside this scope. */
+  /* Dark mode for the entire app when data-theme="dark" is set on html */
+  html[data-theme="dark"] {
+    --ink-rgb: 241 245 249;
+    --ink-soft-rgb: 203 213 225;
+    --ink-muted-rgb: 148 163 184;
+    --paper-rgb: 15 23 42;
+    --paper-sunk-rgb: 30 41 59;
+    --surface-rgb: 30 41 59;
+    --pulse-rgb: 20 184 166;
+    --pulse-soft-rgb: 12 74 110;
+    --pulse-deep-rgb: 13 148 136;
+    --signal-rgb: 251 146 60;
+    --signal-soft-rgb: 120 53 15;
+    --alert-rgb: 239 68 68;
+    --alert-soft-rgb: 127 29 29;
+    --line-rgb: 51 65 85;
+  }
+
+  /* Dark palette for marketing site (existing) */
   .theme-dark {
     --ink-rgb: 243 246 245;
     --ink-soft-rgb: 201 211 208;
@@ -85,6 +99,10 @@
     background-position: right 0.75rem center;
     background-size: 1rem;
   }
+  html[data-theme="dark"] select.field,
+  html[data-theme="dark"] select.field-sm {
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+  }
   textarea.field { @apply min-h-[96px] resize-y leading-relaxed; }
   input[type='checkbox'].field, input[type='radio'].field { @apply min-h-0 w-auto; }
   .field-error .field, .field-error .field-sm { @apply border-alert/60 focus:border-alert focus:ring-alert/15; }
@@ -98,6 +116,12 @@
     background:
       radial-gradient(1200px 400px at 100% -10%, rgb(13 148 136 / 0.07), transparent 60%),
       radial-gradient(900px 380px at -10% 0%, rgb(99 102 241 / 0.06), transparent 55%),
+      rgb(var(--paper-rgb));
+  }
+  html[data-theme="dark"] .app-canvas {
+    background:
+      radial-gradient(1200px 400px at 100% -10%, rgb(20 184 166 / 0.08), transparent 60%),
+      radial-gradient(900px 380px at -10% 0%, rgb(99 102 241 / 0.04), transparent 55%),
       rgb(var(--paper-rgb));
   }
   .btn {

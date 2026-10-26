@@ -2,8 +2,9 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { Menu, Bell, LogOut, Search, LayoutDashboard, KeyRound, ChevronDown } from 'lucide-react';
+import { Menu, Bell, LogOut, Search, LayoutDashboard, KeyRound, ChevronDown, Sun, Moon } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.jsx';
+import { useTheme } from '../../hooks/useTheme.jsx';
 import { HOME_FOR_ROLE, ROLE_LABEL } from '../../routes/nav.js';
 import { api, unwrap, setTokens } from '../../lib/api.js';
 import { getSocket } from '../../lib/socket.js';
@@ -83,6 +84,7 @@ function ChangePassword({ open, onClose }) {
 
 export function Topbar({ onMenu }) {
   const { user, logout } = useAuth();
+  const { theme, toggleTheme } = useTheme();
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [pwOpen, setPwOpen] = useState(false);
@@ -117,6 +119,18 @@ export function Topbar({ onMenu }) {
       <div className="flex-1 sm:hidden" />
 
       {isStaff && <Notifications />}
+
+      <button
+        onClick={toggleTheme}
+        aria-label={`Switch to ${theme === 'light' ? 'dark' : 'light'} mode`}
+        className="rounded-lg p-2 text-ink-muted hover:bg-paper-sunk"
+      >
+        {theme === 'light' ? (
+          <Moon className="h-[18px] w-[18px]" strokeWidth={1.75} />
+        ) : (
+          <Sun className="h-[18px] w-[18px]" strokeWidth={1.75} />
+        )}
+      </button>
 
       <div className="relative" ref={menuRef}>
         <button onClick={() => setShowMenu((s) => !s)} aria-label="Open profile menu" aria-expanded={showMenu}
