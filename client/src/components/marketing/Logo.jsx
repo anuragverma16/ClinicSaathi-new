@@ -13,8 +13,8 @@ export function LogoMark({ className = 'h-8 w-8' }) {
             stroke="#FCFBF8" strokeWidth="2.1" strokeLinecap="round" strokeLinejoin="round" fill="none" />
       <defs>
         <linearGradient id="logo-grad" x1="0" y1="0" x2="32" y2="32" gradientUnits="userSpaceOnUse">
-          <stop stopColor="#0E8A7D" />
-          <stop offset="1" stopColor="#0A6B60" />
+          <stop stopColor="#14B8A6" />
+          <stop offset="1" stopColor="#0D9488" />
         </linearGradient>
       </defs>
     </svg>

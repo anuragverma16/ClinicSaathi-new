@@ -201,7 +201,7 @@ export function Preloader() {
           pointer-events-none absolute
           h-[500px] w-[500px]
           rounded-full
-          bg-[radial-gradient(circle,rgba(45,212,191,0.15)_0%,rgba(45,212,191,0.06)_35%,transparent_70%)]
+          bg-[radial-gradient(circle,rgba(20,184,166,0.15)_0%,rgba(20,184,166,0.06)_35%,transparent_70%)]
           blur-3xl
         "
       />
@@ -212,7 +212,7 @@ export function Preloader() {
         className="
           pointer-events-none absolute
           h-[320px] w-[320px]
-          rounded-full border border-emerald-300/[0.08]
+          rounded-full border border-teal-400/[0.08]
         "
       />
 
@@ -221,7 +221,7 @@ export function Preloader() {
         className="
           pointer-events-none absolute
           h-[430px] w-[430px]
-          rounded-full border border-emerald-300/[0.035]
+          rounded-full border border-teal-400/[0.035]
         "
       />
 
@@ -233,16 +233,16 @@ export function Preloader() {
           <span
             className="
               h-[6px] w-[6px] rounded-full
-              bg-emerald-300
-              shadow-[0_0_14px_rgba(110,231,183,0.9)]
+              bg-teal-400
+              shadow-[0_0_14px_rgba(20,184,166,0.9)]
             "
           />
 
           <span
             className="
               text-[11px] font-semibold uppercase
-              tracking-[0.32em] text-emerald-200/85
-              drop-shadow-[0_0_10px_rgba(110,231,183,0.35)]
+              tracking-[0.32em] text-teal-300/85
+              drop-shadow-[0_0_10px_rgba(20,184,166,0.35)]
               sm:text-xs
             "
           >
@@ -252,8 +252,8 @@ export function Preloader() {
           <span
             className="
               h-[6px] w-[6px] rounded-full
-              bg-emerald-300
-              shadow-[0_0_14px_rgba(110,231,183,0.9)]
+              bg-teal-400
+              shadow-[0_0_14px_rgba(20,184,166,0.9)]
             "
           />
         </div>
@@ -267,7 +267,7 @@ export function Preloader() {
             className="
               pointer-events-none absolute
               h-32 w-32 rounded-full
-              bg-emerald-400/30 blur-lg
+              bg-teal-400/30 blur-lg
             "
           />
 
@@ -282,13 +282,13 @@ export function Preloader() {
               viewBox="0 0 120 120"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
-              className="drop-shadow-[0_0_20px_rgba(45,212,191,0.4)]"
+              className="drop-shadow-[0_0_20px_rgba(20,184,166,0.4)]"
             >
               {/* Head */}
-              <circle cx="60" cy="35" r="20" fill="#2dd4bf" opacity="0.9" />
+              <circle cx="60" cy="35" r="20" fill="#14B8A6" opacity="0.9" />
 
               {/* Body - Torso */}
-              <rect x="42" y="58" width="36" height="35" rx="4" fill="#2dd4bf" opacity="0.85" />
+              <rect x="42" y="58" width="36" height="35" rx="4" fill="#14B8A6" opacity="0.85" />
 
               {/* Medical Cross on Chest */}
               <g opacity="0.7">
@@ -298,26 +298,26 @@ export function Preloader() {
 
               {/* Left Arm */}
               <g>
-                <rect x="28" y="65" width="16" height="12" rx="6" fill="#2dd4bf" opacity="0.8" />
-                <circle cx="28" cy="71" r="5" fill="#2dd4bf" opacity="0.8" />
+                <rect x="28" y="65" width="16" height="12" rx="6" fill="#14B8A6" opacity="0.8" />
+                <circle cx="28" cy="71" r="5" fill="#14B8A6" opacity="0.8" />
               </g>
 
               {/* Right Arm */}
               <g>
-                <rect x="76" y="65" width="16" height="12" rx="6" fill="#2dd4bf" opacity="0.8" />
-                <circle cx="92" cy="71" r="5" fill="#2dd4bf" opacity="0.8" />
+                <rect x="76" y="65" width="16" height="12" rx="6" fill="#14B8A6" opacity="0.8" />
+                <circle cx="92" cy="71" r="5" fill="#14B8A6" opacity="0.8" />
               </g>
 
               {/* Left Leg */}
-              <rect x="48" y="95" width="8" height="20" rx="4" fill="#2dd4bf" opacity="0.8" />
+              <rect x="48" y="95" width="8" height="20" rx="4" fill="#14B8A6" opacity="0.8" />
 
               {/* Right Leg */}
-              <rect x="64" y="95" width="8" height="20" rx="4" fill="#2dd4bf" opacity="0.8" />
+              <rect x="64" y="95" width="8" height="20" rx="4" fill="#14B8A6" opacity="0.8" />
 
               {/* Stethoscope around neck - decorative */}
               <path
                 d="M 45 55 Q 60 65 75 55"
-                stroke="#7cebd8"
+                stroke="#5EEAD4"
                 strokeWidth="2.5"
                 fill="none"
                 strokeLinecap="round"
@@ -344,12 +344,12 @@ export function Preloader() {
             "
             style={{
               background:
-                'linear-gradient(135deg, #ffffff 0%, #e5fff8 28%, #7cebd8 58%, #2dd4bf 100%)',
+                'linear-gradient(135deg, #ffffff 0%, #CCFBF5 28%, #5EEAD4 58%, #14B8A6 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
               filter:
-                'drop-shadow(0 0 20px rgba(45,212,191,0.18))',
+                'drop-shadow(0 0 20px rgba(20,184,166,0.18))',
             }}
           >
             {BRAND}
@@ -361,7 +361,7 @@ export function Preloader() {
           className="
             mt-6 text-center text-xs font-semibold uppercase
             tracking-[0.28em] text-teal-100/75
-            drop-shadow-[0_0_12px_rgba(45,212,191,0.2)]
+            drop-shadow-[0_0_12px_rgba(20,184,166,0.2)]
             sm:text-sm
           "
         >
@@ -381,7 +381,7 @@ export function Preloader() {
               h-full w-full origin-left rounded-full
               bg-gradient-to-r from-emerald-400
               via-teal-300 to-white
-              shadow-[0_0_15px_rgba(45,212,191,0.75)]
+              shadow-[0_0_15px_rgba(20,184,166,0.75)]
             "
           />
         </div>

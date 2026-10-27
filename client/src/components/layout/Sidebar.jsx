@@ -183,7 +183,7 @@ export function Sidebar({ onNavigate, collapsed = false, onToggleCollapse, onClo
                       {({ isActive }) => (
                         <>
                           <span aria-hidden="true"
-                                className={`absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-teal-400 shadow-[0_0_10px_rgba(45,212,191,0.6)] transition-opacity duration-150 ${isActive && !locked ? 'opacity-100' : 'opacity-0'}`} />
+                                className={`absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-teal-400 shadow-[0_0_10px_rgba(20,184,166,0.6)] transition-opacity duration-150 ${isActive && !locked ? 'opacity-100' : 'opacity-0'}`} />
                           <Icon className={`h-[18px] w-[18px] shrink-0 transition-colors ${isActive && !locked ? 'text-teal-300' : 'text-navy-text/60 group-hover:text-white'}`} strokeWidth={1.9} />
                           <span className={`flex-1 truncate ${fade(collapsed)}`}>{item.label}</span>
                           {locked && <Lock className={`h-3.5 w-3.5 shrink-0 ${fade(collapsed)}`} aria-label="Locked" />}

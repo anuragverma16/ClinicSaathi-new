@@ -5,7 +5,7 @@
  */
 
 const TONES = {
-  pulse: { a: '#0E8A7D', b: '#0A6B60' },
+  pulse: { a: '#14B8A6', b: '#0D9488' },
   signal: { a: '#E0952F', b: '#C97B1E' },
   ink: { a: '#1C4742', b: '#11312D' },
 };
