@@ -40,7 +40,7 @@ function PlanCard({ subscription, entitlements, role }) {
         </span>
         <div className="min-w-0 flex-1">
           <p className="truncate text-[13px] font-semibold capitalize text-white">{entitlements.plan?.toLowerCase()} plan</p>
-          <p className="truncate text-xs text-navy-text/60">
+          <p className="truncate text-xs text-navy-text/75">
             {!entitlements.live ? 'Inactive, paid features paused' : trialing ? `Trial · ${daysLeft} day${daysLeft === 1 ? '' : 's'} left` : 'Active subscription'}
           </p>
         </div>
@@ -115,12 +115,12 @@ export function Sidebar({ onNavigate, collapsed = false, onToggleCollapse, onClo
           <p className="truncate font-display text-[15px] font-semibold text-white">
             {isPlatform ? 'ClinicSaathi' : clinic?.name || 'ClinicSaathi'}
           </p>
-          <p className="flex items-center gap-1 truncate text-xs text-navy-text/60">
+          <p className="flex items-center gap-1 truncate text-xs text-navy-text/75">
             {isPlatform && <ShieldCheck className="h-3 w-3 text-teal-300" />} {roleLine}
           </p>
         </div>
         {onClose && (
-          <button onClick={onClose} aria-label="Close menu" className="rounded-lg p-1.5 text-navy-text/70 transition-colors hover:bg-white/[0.06] hover:text-white">
+          <button onClick={onClose} aria-label="Close menu" className="rounded-lg p-1.5 text-navy-text/85 transition-colors hover:bg-white/[0.06] hover:text-white">
             <X className="h-5 w-5" />
           </button>
         )}
@@ -130,29 +130,29 @@ export function Sidebar({ onNavigate, collapsed = false, onToggleCollapse, onClo
       <div className="shrink-0 px-3 pt-3">
         {collapsed ? (
           <button onClick={onToggleCollapse} aria-label="Search menu" onMouseEnter={(e) => showFlyout(e, 'Search menu')} onMouseLeave={hideFlyout}
-                  className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg text-navy-text/70 transition-colors hover:bg-white/[0.06] hover:text-white">
+                  className="mx-auto flex h-10 w-10 items-center justify-center rounded-lg text-navy-text/85 transition-colors hover:bg-white/[0.06] hover:text-white">
             <Search className="h-[18px] w-[18px]" />
           </button>
         ) : (
           <label className="group relative block">
-            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-text/50 transition-colors group-focus-within:text-teal-300" />
+            <Search className="pointer-events-none absolute left-3 top-1/2 h-4 w-4 -translate-y-1/2 text-navy-text/70 transition-colors group-focus-within:text-teal-300" />
             <input ref={searchRef} value={query} onChange={(e) => setQuery(e.target.value)}
                    onKeyDown={(e) => e.key === 'Escape' && (setQuery(''), e.currentTarget.blur())}
                    placeholder="Search menu" aria-label="Search menu"
-                   className="w-full rounded-lg border border-white/10 bg-white/[0.05] py-2 pl-9 pr-9 text-[13.5px] text-white outline-none transition-colors placeholder:text-navy-text/50 focus:border-teal-400/50 focus:bg-white/[0.08] focus:ring-2 focus:ring-teal-400/15" />
-            <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-white/15 px-1.5 text-[10px] text-navy-text/60">/</kbd>
+                   className="w-full rounded-lg border border-white/10 bg-white/[0.05] py-2 pl-9 pr-9 text-[13.5px] text-white outline-none transition-colors placeholder:text-navy-text/70 focus:border-teal-400/50 focus:bg-white/[0.08] focus:ring-2 focus:ring-teal-400/15" />
+            <kbd className="pointer-events-none absolute right-2.5 top-1/2 -translate-y-1/2 rounded border border-white/15 px-1.5 text-[10px] text-navy-text/75">/</kbd>
           </label>
         )}
       </div>
 
       {/* Navigation: every feature in one list */}
       <div className="flex-1 overflow-y-auto overflow-x-hidden px-3 py-3 [scrollbar-width:thin]">
-        {!groups.length && <p className="px-2 py-6 text-center text-[13px] text-navy-text/60">No menu items match “{query}”.</p>}
+        {!groups.length && <p className="px-2 py-6 text-center text-[13px] text-navy-text/75">No menu items match “{query}”.</p>}
 
         {groups.map((group, gi) => (
           <div key={group.name} className={gi ? 'mt-4' : ''}>
             <div className="relative mb-1 flex h-6 items-center px-2.5">
-              <span className={`flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-navy-text/55 ${fade(collapsed)}`}>
+              <span className={`flex items-center gap-2 text-[11px] font-semibold uppercase tracking-[0.08em] text-navy-text/80 ${fade(collapsed)}`}>
                 <span className={`h-1.5 w-1.5 rounded-full ${accents[group.name].dot}`} />
                 {group.name}
               </span>
@@ -184,7 +184,7 @@ export function Sidebar({ onNavigate, collapsed = false, onToggleCollapse, onClo
                         <>
                           <span aria-hidden="true"
                                 className={`absolute -left-3 top-1/2 h-5 w-[3px] -translate-y-1/2 rounded-r-full bg-teal-400 shadow-[0_0_10px_rgba(20,184,166,0.6)] transition-opacity duration-150 ${isActive && !locked ? 'opacity-100' : 'opacity-0'}`} />
-                          <Icon className={`h-[18px] w-[18px] shrink-0 transition-colors ${isActive && !locked ? 'text-teal-300' : 'text-navy-text/60 group-hover:text-white'}`} strokeWidth={1.9} />
+                          <Icon className={`h-[18px] w-[18px] shrink-0 transition-colors ${isActive && !locked ? 'text-teal-300' : 'text-navy-text/75 group-hover:text-white'}`} strokeWidth={1.9} />
                           <span className={`flex-1 truncate ${fade(collapsed)}`}>{item.label}</span>
                           {locked && <Lock className={`h-3.5 w-3.5 shrink-0 ${fade(collapsed)}`} aria-label="Locked" />}
                         </>
@@ -216,18 +216,18 @@ export function Sidebar({ onNavigate, collapsed = false, onToggleCollapse, onClo
           {!collapsed && (
             <div className="min-w-0 flex-1">
               <p className="truncate text-[13.5px] font-medium text-white">{user?.name}</p>
-              <p className="truncate text-xs text-navy-text/60">{user?.email || user?.phone}</p>
+              <p className="truncate text-xs text-navy-text/75">{user?.email || user?.phone}</p>
             </div>
           )}
           <button onClick={doLogout} aria-label="Sign out" onMouseEnter={(e) => showFlyout(e, 'Sign out')} onMouseLeave={hideFlyout}
-                  className="rounded-lg p-2 text-navy-text/70 transition-colors hover:bg-rose-500/15 hover:text-rose-300">
+                  className="rounded-lg p-2 text-navy-text/85 transition-colors hover:bg-rose-500/15 hover:text-rose-300">
             <LogOut className="h-4 w-4" />
           </button>
         </div>
         {onToggleCollapse && (
           <button onClick={onToggleCollapse} aria-label={collapsed ? 'Expand sidebar' : 'Collapse sidebar'}
                   onMouseEnter={(e) => showFlyout(e, 'Expand sidebar')} onMouseLeave={hideFlyout}
-                  className="mt-2 flex h-9 w-full items-center gap-2 rounded-lg px-[15px] text-[13px] text-navy-text/70 transition-colors hover:bg-white/[0.06] hover:text-white">
+                  className="mt-2 flex h-9 w-full items-center gap-2 rounded-lg px-[15px] text-[13px] text-navy-text/85 transition-colors hover:bg-white/[0.06] hover:text-white">
             {collapsed ? <ChevronsRight className="mx-auto h-4 w-4 shrink-0" /> : <ChevronsLeft className="h-4 w-4 shrink-0" />}
             {!collapsed && <span className="whitespace-nowrap">Collapse sidebar</span>}
           </button>
