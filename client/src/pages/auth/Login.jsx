@@ -35,7 +35,7 @@ export default function Login() {
   return (
     <AuthLayout>
       <h1 className="font-display text-2xl font-semibold">Sign in to ClinicSaathi</h1>
-      <p className="mt-1.5 text-sm text-ink-muted">For clinic owners, doctors, front desk, accounts, lab and branch teams.</p>
+      <p className="mt-1.5 text-sm text-ink-muted">For clinic owners, doctors, lab technicians, branch managers, accountants and receptionists.</p>
 
       <form onSubmit={submit} className="mt-7 space-y-4" noValidate>
         <div>

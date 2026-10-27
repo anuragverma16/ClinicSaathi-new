@@ -7,6 +7,18 @@ const availabilityRuleSchema = new db.Schema({
   endTime: { type: String, required: true },    // "13:00"
 }, { _id: false });
 
+/**
+ * A doctor's own hours for one calendar date, set by the doctor themselves.
+ * Replaces the weekly `availability` rules for that date; an empty `windows`
+ * means they are not working at all that day. `date` is a plain 'YYYY-MM-DD'
+ * in clinic time so a UTC server can never shift it onto the wrong day.
+ */
+const scheduleOverrideSchema = new db.Schema({
+  date: { type: String, required: true },
+  windows: [{ startTime: String, endTime: String }],
+  note: String,
+}, { _id: false });
+
 const doctorSchema = new db.Schema({
   name: { type: String, required: true },
   photoUrl: String,
@@ -17,6 +29,7 @@ const doctorSchema = new db.Schema({
   consultationFee: { type: Number, default: 0 },
   slotDurationMins: { type: Number, default: 15 },
   availability: [availabilityRuleSchema],
+  scheduleOverrides: [scheduleOverrideSchema],
   breaks: [{ dayOfWeek: Number, startTime: String, endTime: String }],
   leaves: [{ from: Date, to: Date, reason: String }],
   serviceIds: [{ type: db.Schema.Types.ObjectId, ref: 'Service' }],

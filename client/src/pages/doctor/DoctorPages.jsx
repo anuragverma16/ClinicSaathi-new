@@ -11,6 +11,7 @@ import { Modal } from '../../components/ui/Modal.jsx';
 import { PatientPicker } from '../clinic/BookingForm.jsx';
 import Appointments from '../clinic/Appointments.jsx';
 import { ConsultationWorkspace } from './ConsultationWorkspace.jsx';
+import { WeeklyHours } from './WeeklyHours.jsx';
 import { date, dateTime, titleCase } from '../../lib/format.js';
 
 const dl = (kind, id, label = 'PDF') => (
@@ -207,15 +208,11 @@ export function DoctorSchedule() {
     onSuccess: () => { toast.success('Leave recorded — those days are closed for booking'); setLeave({ from: '', to: '', reason: '' }); qc.invalidateQueries({ queryKey: ['doctors'] }); },
     onError: (e) => toast.error(e.message),
   });
-  const DAYS = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
   return (
     <div className="space-y-6">
       <Appointments mode="doctor" />
       <div className="grid gap-5 lg:grid-cols-2">
-        <Section title="Working hours">
-          <ul className="space-y-1 text-sm">{DAYS.map((d, i) => { const r = me.data?.availability?.filter((a) => a.dayOfWeek === i) || []; return <li key={d} className="flex gap-3"><span className="w-10 font-medium">{d}</span><span className="text-ink-soft">{r.length ? r.map((x) => `${x.startTime}–${x.endTime}`).join(', ') : 'Off'}</span></li>; })}</ul>
-          <p className="mt-3 text-xs text-ink-muted">Your clinic manages these hours.</p>
-        </Section>
+        <WeeklyHours />
         <CalendarSyncCard doctorId={me.data?._id} />
         <Section title="Request leave">
           <div className="space-y-3">

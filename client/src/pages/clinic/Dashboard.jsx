@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Link } from 'react-router-dom';
 import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import {
   CalendarCheck, Users, Clock, IndianRupee, AlertCircle, UserX, BellRing, CalendarPlus, UserPlus, Stethoscope, Settings, ExternalLink, Repeat, QrCode,
+  FlaskConical, GitBranch, Calculator, ClipboardCheck, ChevronDown,
 } from 'lucide-react';
 import { api, unwrap } from '../../lib/api.js';
 import { onSocket } from '../../lib/socket.js';
@@ -16,7 +18,80 @@ import { PageHeader, Section } from '../../components/ui/Page.jsx';
 import { RevenueChart, AppointmentsChart, useAnalytics } from './Analytics.jsx';
 import { BranchReport } from './Branches.jsx';
 import { QRCodeDisplay } from '../../components/clinic/QRCodeDisplay.jsx';
+import { ROLE_LABEL } from '../../routes/nav.js';
 import { inr, time } from '../../lib/format.js';
+
+const ADD_ROLES = [
+  ['DOCTOR', Stethoscope, 'Schedule, queue, notes and prescriptions'],
+  ['LAB_TECHNICIAN', FlaskConical, 'Lab worklist and result uploads'],
+  ['BRANCH_MANAGER', GitBranch, 'Runs one branch end to end'],
+  ['ACCOUNTANT', Calculator, 'Invoices, payments and GST'],
+  ['RECEPTIONIST', ClipboardCheck, 'Bookings, check-in and waiting queue'],
+];
+
+/**
+ * The menu is portalled out of PageHeader because that banner is overflow-hidden
+ * (it clips its own blur decorations), which would otherwise cut the dropdown off.
+ */
+function AddStaffMenu() {
+  const [open, setOpen] = useState(false);
+  const [pos, setPos] = useState(null);
+  const btnRef = useRef(null);
+  const menuRef = useRef(null);
+
+  useEffect(() => {
+    if (!open) return undefined;
+    const place = () => {
+      const r = btnRef.current?.getBoundingClientRect();
+      if (r) setPos({ top: r.bottom + 8, right: Math.max(8, window.innerWidth - r.right) });
+    };
+    place();
+    const onDown = (e) => {
+      if (!btnRef.current?.contains(e.target) && !menuRef.current?.contains(e.target)) setOpen(false);
+    };
+    const onKey = (e) => e.key === 'Escape' && setOpen(false);
+    document.addEventListener('mousedown', onDown);
+    document.addEventListener('keydown', onKey);
+    window.addEventListener('resize', place);
+    window.addEventListener('scroll', place, true);
+    return () => {
+      document.removeEventListener('mousedown', onDown);
+      document.removeEventListener('keydown', onKey);
+      window.removeEventListener('resize', place);
+      window.removeEventListener('scroll', place, true);
+    };
+  }, [open]);
+
+  return (
+    <>
+      <button ref={btnRef} type="button" className="btn-ghost" aria-haspopup="menu" aria-expanded={open}
+              onClick={() => setOpen((s) => !s)}>
+        <UserPlus className="h-4 w-4" /> Add staff
+        <ChevronDown className={`h-3.5 w-3.5 transition-transform ${open ? 'rotate-180' : ''}`} />
+      </button>
+      {open && pos && createPortal(
+        <div ref={menuRef} role="menu" style={{ top: pos.top, right: pos.right }}
+             className="fixed z-50 w-72 rounded-card border border-line bg-surface p-1 shadow-lift">
+          <p className="px-3 pb-1 pt-2 text-[11px] font-semibold uppercase tracking-wider text-ink-muted">Create a login for</p>
+          {ADD_ROLES.map(([role, Icon, help]) => (
+            <Link key={role} role="menuitem" to={`/clinic/staff?add=${role}`} onClick={() => setOpen(false)}
+                  className="flex items-start gap-2.5 rounded-lg px-3 py-2 text-left hover:bg-paper-sunk">
+              <Icon className="mt-0.5 h-4 w-4 shrink-0 text-ink-muted" />
+              <span className="min-w-0">
+                <span className="block text-sm font-medium text-ink">{ROLE_LABEL[role]}</span>
+                <span className="block text-xs leading-snug text-ink-muted">{help}</span>
+              </span>
+            </Link>
+          ))}
+          <hr className="my-1 border-line" />
+          <Link to="/clinic/staff" onClick={() => setOpen(false)}
+                className="flex items-center gap-2.5 rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-paper-sunk">
+            <Users className="h-4 w-4 text-ink-muted" /> Manage all staff
+          </Link>
+        </div>, document.body)}
+    </>
+  );
+}
 
 function TodayTable({ link }) {
   const today = useQuery({ queryKey: ['appointments', 'dash-today'], queryFn: () => api.get('/appointments', { params: { date: dayjs().format('YYYY-MM-DD') } }).then(unwrap) });
@@ -67,6 +142,7 @@ export default function OwnerDashboard() {
       <PageHeader title={`Good ${dayjs().hour() < 12 ? 'morning' : dayjs().hour() < 17 ? 'afternoon' : 'evening'}, ${user?.name?.split(' ')[0] || ''}`}
         description={`${dayjs().format('dddd, D MMMM')} · ${clinic?.name || ''}`}
         actions={<>
+          <AddStaffMenu />
           <button onClick={() => setShowQR(true)} className="btn-ghost"><QrCode className="h-4 w-4" /> Patient QR</button>
           <a href={`/book/${clinic?.slug}`} target="_blank" rel="noreferrer" className="btn-ghost"><ExternalLink className="h-4 w-4" /> Booking page</a>
           <Link to="/clinic/appointments" className="btn-primary"><CalendarPlus className="h-4 w-4" /> New appointment</Link>

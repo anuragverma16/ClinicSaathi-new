@@ -54,8 +54,11 @@ export async function candidateSlots({ clinicId, doctor, date, durationMins }) {
   if (holiday) return { slots: [], reason: `Clinic closed${holiday.reason ? ` — ${holiday.reason}` : ''}` };
   if (!doctor.isActive) return { slots: [], reason: 'Doctor is not taking appointments' };
   if (isOnLeave(doctor.leaves, ymd)) return { slots: [], reason: 'Doctor is on leave that day' };
+  // Hours the doctor set for this date beat their weekly pattern; no windows means a day off.
+  const override = (doctor.scheduleOverrides || []).find((o) => o.date === ymd);
+  if (override && !override.windows?.length) return { slots: [], reason: 'Doctor is not working that day' };
   return {
-    slots: generateSlots({ date: ymd, rules: doctor.availability, breaks: doctor.breaks, slotDurationMins: durationMins, tz: TZ }),
+    slots: generateSlots({ date: ymd, rules: doctor.availability, breaks: doctor.breaks, slotDurationMins: durationMins, tz: TZ, override }),
   };
 }
 

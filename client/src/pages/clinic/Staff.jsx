@@ -1,4 +1,5 @@
-import { useMemo, useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import { useSearchParams } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
 import {
@@ -317,6 +318,15 @@ export default function Staff({ title = 'Staff management', readOnly }) {
   const canEdit = !readOnly && user?.role === 'CLINIC_OWNER';
   const { data, isLoading, error, refetch } = useQuery({ queryKey: ['staff'], queryFn: () => api.get('/clinics/staff').then(unwrap) });
 
+  // ?add=DOCTOR — the dashboard's "Add staff" menu opens the form on that role.
+  const [params, setParams] = useSearchParams();
+  const addRole = params.get('add');
+  useEffect(() => {
+    if (!canEdit || !ROLES.includes(addRole)) return;
+    setEditing({ role: addRole, _fresh: Date.now() });
+    setParams((p) => { p.delete('add'); return p; }, { replace: true });
+  }, [addRole, canEdit, setParams]);
+
   const counts = useMemo(() => (data || []).reduce((c, r) => ({ ...c, [r.role]: (c[r.role] || 0) + 1 }), {}), [data]);
   const rows = useMemo(() => {
     const s = q.trim().toLowerCase();
@@ -328,7 +338,7 @@ export default function Staff({ title = 'Staff management', readOnly }) {
 
   return (
     <div>
-      <PageHeader title={title} description={canEdit ? 'Add your doctors, front desk, branch managers, accounts and lab team. Each person sees only what their role allows.' : 'Team members assigned to your branch.'}
+      <PageHeader title={title} description={canEdit ? 'Add your doctors, lab technicians, branch managers, accountants and receptionists. Each person sees only what their role allows.' : 'Team members assigned to your branch.'}
         actions={canEdit && <button className="btn-primary" onClick={() => setEditing({})}><UserPlus className="h-4 w-4" /> Add team member</button>} />
 
       <div className="mb-4 flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
@@ -351,7 +361,7 @@ export default function Staff({ title = 'Staff management', readOnly }) {
 
       <DataTable
         loading={isLoading} error={error} onRetry={refetch} rows={rows} onRowClick={canEdit ? (r) => r.role !== 'CLINIC_OWNER' && setEditing(r) : undefined}
-        empty={<EmptyState title={data?.length ? 'No one matches' : 'No staff yet'} body={data?.length ? 'Try another role or search.' : 'Add your doctors, front desk and accounts team.'}
+        empty={<EmptyState title={data?.length ? 'No one matches' : 'No staff yet'} body={data?.length ? 'Try another role or search.' : 'Add your doctors, lab technicians, branch managers, accountants and receptionists.'}
                            action={canEdit && !data?.length ? <button className="btn-primary" onClick={() => setEditing({})}><UserPlus className="h-4 w-4" /> Add team member</button> : undefined} />}
         columns={[
           { key: 'name', header: 'Name', sort: (r) => r.name, render: (r) => (

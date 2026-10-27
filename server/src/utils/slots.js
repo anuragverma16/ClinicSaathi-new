@@ -25,14 +25,16 @@ export function toMinutes(hhmm) {
  * Expand a doctor's availability rules into candidate slots for one day.
  * Returns array of { startAt, endAt } in UTC Date form.
  */
-export function generateSlots({ date, rules, breaks = [], slotDurationMins, tz = TZ }) {
+export function generateSlots({ date, rules, breaks = [], slotDurationMins, tz = TZ, override }) {
   // A 'YYYY-MM-DD' string is taken as the clinic-local date as-is; a Date is
   // converted to the clinic timezone first so a UTC server can't shift the day.
   const ymd = typeof date === 'string' && /^\d{4}-\d{2}-\d{2}$/.test(date) ? date : dayjs(date).tz(tz).format('YYYY-MM-DD');
   const day = dayjs.tz(ymd, tz);
   const dow = day.day();
-  const todaysRules = rules.filter((r) => r.dayOfWeek === dow);
-  const todaysBreaks = breaks.filter((b) => b.dayOfWeek === dow);
+  // Hours the doctor set for this exact date replace the weekly pattern. The
+  // weekly breaks go with it — those windows are already the hours they chose.
+  const todaysRules = override ? (override.windows || []) : rules.filter((r) => r.dayOfWeek === dow);
+  const todaysBreaks = override ? [] : breaks.filter((b) => b.dayOfWeek === dow);
 
   const slots = [];
   for (const rule of todaysRules) {

@@ -13,6 +13,7 @@ import { StatusBadge } from '../../components/ui/StatusBadge.jsx';
 import { EmptyState } from '../../components/ui/States.jsx';
 import { PageHeader, Section } from '../../components/ui/Page.jsx';
 import { ConsultationWorkspace } from './ConsultationWorkspace.jsx';
+import { MonthSchedule } from './MonthSchedule.jsx';
 import { time, age } from '../../lib/format.js';
 
 export default function DoctorDashboard() {
@@ -95,6 +96,7 @@ export default function DoctorDashboard() {
             { key: 'status', header: 'Status', render: (r) => <div className="flex flex-wrap items-center gap-1.5"><StatusBadge status={r.status} />{r.meetingUrl && <a href={r.meetingUrl} target="_blank" rel="noreferrer" onClick={(e) => e.stopPropagation()} className="inline-flex items-center gap-1 rounded-full bg-sky-50 px-2 py-0.5 text-xs font-medium text-sky-700 ring-1 ring-sky-200 hover:bg-sky-100">Join video</a>}</div> },
           ]} />
       </Section>
+      <MonthSchedule />
       {open && <ConsultationWorkspace appointment={open} onClose={() => setOpen(null)} />}
     </div>
   );

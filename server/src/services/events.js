@@ -27,6 +27,7 @@ export const EVENTS = {
   FOLLOWUP_DUE: 'followup.due',
   RECALL_DUE: 'recall.due',
   AI_ESCALATED: 'ai.escalated',
+  DOCTOR_SCHEDULE_UPDATED: 'doctor.schedule_updated',
 };
 
 export const emit = (event, payload) => events.emit(event, payload);

@@ -9,6 +9,13 @@ export const ROLES = {
   PATIENT: 'PATIENT',
 };
 
+/**
+ * Hours a new doctor starts on, so adding one never leaves them silently
+ * unbookable. Mon–Sat 09:00–17:00, Sunday off. The clinic edits it afterwards.
+ */
+export const DEFAULT_AVAILABILITY = [1, 2, 3, 4, 5, 6]
+  .map((dayOfWeek) => ({ dayOfWeek, startTime: '09:00', endTime: '17:00' }));
+
 /** Roles a clinic owner may invite. Owners and super admins are provisioned elsewhere. */
 export const STAFF_ROLES = [
   ROLES.BRANCH_MANAGER, ROLES.DOCTOR, ROLES.RECEPTIONIST, ROLES.ACCOUNTANT, ROLES.LAB_TECHNICIAN,

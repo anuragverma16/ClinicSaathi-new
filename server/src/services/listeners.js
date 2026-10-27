@@ -165,6 +165,25 @@ export function registerListeners({ io } = {}) {
     io?.to(`clinic:${clinicId}`).emit('payment:received', { id: payment._id, amount: payment.amount });
   });
 
+  /**
+   * A doctor set their own hours. Booking already reflects it, so the clinic is
+   * told rather than asked — reception needs it most, since bookings that were
+   * already taken on those dates are not moved automatically.
+   */
+  events.on(EVENTS.DOCTOR_SCHEDULE_UPDATED, safely('DOCTOR_SCHEDULE_UPDATED', async ({ clinicId, doctorId, doctorName, dates, weekly }) => {
+    if (!weekly && !dates?.length) return;
+    const span = weekly ? null : dates.length === 1
+      ? dayjs.tz(dates[0], TZ).format('D MMM')
+      : `${dates.length} days from ${dayjs.tz(dates[0], TZ).format('D MMM')}`;
+    const title = weekly
+      ? `${doctorName} updated their weekly working hours`
+      : `${doctorName} updated their working hours · ${span}`;
+    for (const role of ['CLINIC_OWNER', 'BRANCH_MANAGER', 'RECEPTIONIST']) {
+      await notifyStaff({ clinicId, role, type: 'DOCTOR_SCHEDULE', title, link: '/clinic/calendar' });
+    }
+    io?.to(`clinic:${clinicId}`).emit('doctor:schedule', { doctorId, dates });
+  }));
+
   events.on(EVENTS.AI_ESCALATED, safely('AI_ESCALATED', async ({ clinicId, reason }) => {
     await notifyStaff({
       clinicId, role: 'RECEPTIONIST', type: 'AI_ESCALATION',

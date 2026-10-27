@@ -1,10 +1,11 @@
-import { useState } from 'react';
-import { useQuery } from '@tanstack/react-query';
+import { useEffect, useState } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import dayjs from 'dayjs';
 import {
   ChevronLeft, ChevronRight, CalendarDays, CalendarCheck2, Flame, Stethoscope, CalendarOff, Coffee, Clock, Plane, Sparkles,
 } from 'lucide-react';
 import { api, unwrap } from '../../lib/api.js';
+import { onSocket } from '../../lib/socket.js';
 import { PageHeader } from '../../components/ui/Page.jsx';
 import { Skeleton } from '../../components/ui/States.jsx';
 import { time } from '../../lib/format.js';
@@ -49,6 +50,7 @@ function StatTile({ icon: Icon, label, value, hint, grad }) {
  * pattern and free slots for any day — the "calendar and availability" view.
  */
 export default function CalendarPage() {
+  const qc = useQueryClient();
   const [weekStart, setWeekStart] = useState(dayjs().startOf('week'));
   const [doctorId, setDoctorId] = useState('');
   const [freeDay, setFreeDay] = useState(dayjs().format('YYYY-MM-DD'));
@@ -60,6 +62,12 @@ export default function CalendarPage() {
     queryFn: () => api.get('/appointments', { params: { from, to, doctorId: doctorId || undefined, limit: 200, status: 'REQUESTED,CONFIRMED,WAITING,CHECKED_IN,IN_CONSULTATION,COMPLETED' } }).then(unwrap),
   });
   const clinic = useQuery({ queryKey: ['clinic', 'me'], queryFn: () => api.get('/clinics/me').then(unwrap) });
+  // A doctor can change their own hours from their dashboard — pick it up live.
+  useEffect(() => onSocket(['doctor:schedule', 'appointment:created', 'appointment:updated', 'appointment:cancelled'], () => {
+    qc.invalidateQueries({ queryKey: ['doctors'] });
+    qc.invalidateQueries({ queryKey: ['appointments'] });
+    qc.invalidateQueries({ queryKey: ['availability'] });
+  }), [qc]);
   const doctor = doctors.data?.find((d) => d._id === doctorId);
   const holidays = new Set((clinic.data?.holidays || []).map((h) => dayjs(h.date).format('YYYY-MM-DD')));
 

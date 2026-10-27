@@ -12,7 +12,7 @@ import { assertWithinLimit } from '../../middleware/planGate.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { ok, created } from '../../utils/respond.js';
 import { ApiError } from '../../utils/ApiError.js';
-import { ROLES, STAFF_ROLES } from '../../config/constants.js';
+import { ROLES, STAFF_ROLES, DEFAULT_AVAILABILITY } from '../../config/constants.js';
 import { recordAudit } from '../../middleware/audit.js';
 import { getEntitlements } from '../../services/plans.service.js';
 import { normalisePhone } from '../../services/otp.service.js';
@@ -217,7 +217,10 @@ router.post('/staff', owner, validate(createStaffSchema), catchAsync(async (req,
 
   let doctor = null;
   if (makeProfile) {
-    doctor = await scoped(Doctor, req).create({ ...newDoctor, name: body.name, branchId: body.branchId || undefined, userId: user._id });
+    doctor = await scoped(Doctor, req).create({
+      ...newDoctor, name: body.name, availability: DEFAULT_AVAILABILITY,
+      branchId: body.branchId || undefined, userId: user._id,
+    });
     user.doctorId = doctor._id;
   }
   try {
