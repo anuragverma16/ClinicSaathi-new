@@ -165,16 +165,7 @@ router.put('/me/schedule', validate(scheduleSchema), catchAsync(async (req, res)
 }));
 
 /** Doctors record their own leave as well; the weekly pattern stays with the clinic. */
-router.post('/me/leaves', validate(leaveSchema), catchAsync(async (req, res) => {
-  const doctorId = requireDoctorProfile(req);
-  const doctor = await scoped(Doctor, req).findOneAndUpdate(
-    { _id: doctorId },
-    { $push: { leaves: { from: dayjs.tz(req.body.from, TZ).toDate(), to: dayjs.tz(req.body.to, TZ).toDate(), reason: req.body.reason } } },
-    { new: true }
-  );
-  recordAudit(req, { action: 'DOCTOR_LEAVE_ADDED', entityType: 'Doctor', entityId: doctorId, after: req.body });
-  ok(res, doctor);
-}));
+// A doctor's own leave goes through /leaves for the clinic owner's approval.
 
 router.post('/', requirePermission('doctor:create'), validate(doctorSchema), catchAsync(async (req, res) => {
   const count = await scoped(Doctor, req).countDocuments({ isActive: true });

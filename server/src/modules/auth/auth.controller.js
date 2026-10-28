@@ -13,6 +13,7 @@ import { recordAudit } from '../../middleware/audit.js';
 import { getEntitlements } from '../../services/plans.service.js';
 import { issueOtp, verifyOtp, normalisePhone } from '../../services/otp.service.js';
 import { sendEmail } from '../../integrations/email.js';
+import { cloudinaryEnabled, uploadAvatarImage, deleteAvatarImage } from '../../integrations/cloudinary.js';
 
 const password = z.string().min(8, 'Use at least 8 characters').max(128)
   .regex(/[A-Za-z]/, 'Include at least one letter').regex(/\d/, 'Include at least one number');
@@ -166,6 +167,34 @@ export const changePassword = catchAsync(async (req, res) => {
   await user.save();
   recordAudit(req, { action: 'PASSWORD_CHANGED', entityType: 'User', entityId: user._id });
   ok(res, await issueSession(user));
+});
+
+// ------------------------------------------------------------ Profile photo
+
+/** Every login except the platform super admin has a profile photo. */
+function assertHasProfilePhoto(user) {
+  if (user.role === ROLES.SUPER_ADMIN) throw ApiError.forbidden('Platform admin accounts have no profile photo');
+}
+
+export const uploadAvatar = catchAsync(async (req, res) => {
+  assertHasProfilePhoto(req.user);
+  if (!req.file) throw ApiError.badRequest('Choose a photo to upload', 'NO_FILE');
+  if (!cloudinaryEnabled) throw new ApiError(503, 'Photo uploads are not set up on this server yet', 'UPLOAD_NOT_CONFIGURED');
+
+  // One public id per user, so a new upload overwrites the old image in place.
+  const image = await uploadAvatarImage(req.file.buffer, `user_${req.user._id}`);
+  const user = await User.findByIdAndUpdate(req.user._id, { avatarUrl: image.secure_url, avatarPublicId: image.public_id }, { new: true });
+  recordAudit(req, { action: 'AVATAR_UPDATED', entityType: 'User', entityId: user._id });
+  ok(res, user.toSafeJSON());
+});
+
+export const removeAvatar = catchAsync(async (req, res) => {
+  assertHasProfilePhoto(req.user);
+  const current = await User.findById(req.user._id).select('+avatarPublicId');
+  await deleteAvatarImage(current?.avatarPublicId);
+  const user = await User.findByIdAndUpdate(req.user._id, { $unset: { avatarUrl: 1, avatarPublicId: 1 } }, { new: true });
+  recordAudit(req, { action: 'AVATAR_REMOVED', entityType: 'User', entityId: user._id });
+  ok(res, user.toSafeJSON());
 });
 
 // ------------------------------------------------------------ Patient OTP

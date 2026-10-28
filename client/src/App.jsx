@@ -105,6 +105,8 @@ const queryClient = new QueryClient({
 const OWNER = ['CLINIC_OWNER'];
 const shell = (roles) => <ProtectedRoute roles={roles}><AppShell /></ProtectedRoute>;
 const BranchSettings = lazy(() => import('./pages/clinic/BranchSettings.jsx'));
+const MyLeave = named(() => import('./pages/clinic/Leave.jsx'), 'MyLeave');
+const LeaveRequests = named(() => import('./pages/clinic/Leave.jsx'), 'LeaveRequests');
 
 export default function App() {
   return (
@@ -162,6 +164,7 @@ export default function App() {
                 <Route path="patients" element={<Patients />} />
                 <Route path="reports" element={<Analytics title="Branch reports and collections" fixedBranch />} />
                 <Route path="settings" element={<BranchSettings />} />
+                <Route path="leave" element={<MyLeave />} />
               </Route>
 
               {/* Doctor */}
@@ -178,6 +181,7 @@ export default function App() {
                 <Route path="followups" element={<FollowupsRecall />} />
                 <Route path="certificates" element={<Certificates />} />
                 <Route path="history" element={<Consultations mode="history" />} />
+                <Route path="leave" element={<MyLeave isDoctor />} />
               </Route>
 
               {/* Receptionist */}
@@ -193,6 +197,7 @@ export default function App() {
                 <Route path="changes" element={<Appointments mode="changes" bookPath="/clinic/reception/new-appointment" />} />
                 <Route path="communication" element={<PatientCommunication />} />
                 <Route path="payments" element={<Invoices title="Payment status" readOnly />} />
+                <Route path="leave" element={<MyLeave />} />
               </Route>
 
               {/* Accountant */}
@@ -208,6 +213,7 @@ export default function App() {
                 <Route path="gst" element={<Invoices gst />} />
                 <Route path="reconciliation" element={<Reconciliation />} />
                 <Route path="reports" element={<FinanceReports />} />
+                <Route path="leave" element={<MyLeave />} />
               </Route>
 
               {/* Lab */}
@@ -215,6 +221,7 @@ export default function App() {
                 <Route index element={<Navigate to="dashboard" replace />} />
                 <Route path="dashboard" element={<LabDashboard />} />
                 <Route path="completed" element={<LabDashboard view="completed" />} />
+                <Route path="leave" element={<MyLeave />} />
               </Route>
 
               {/* Clinic owner (declared after the role sub-trees above) */}
@@ -225,6 +232,7 @@ export default function App() {
                 <Route path="patients" element={<Patients />} />
                 <Route path="doctors" element={<Doctors />} />
                 <Route path="staff" element={<Staff />} />
+                <Route path="leave-requests" element={<LeaveRequests />} />
                 <Route path="services" element={<Services />} />
                 <Route path="calendar" element={<CalendarPage />} />
                 <Route path="queue" element={<Queue />} />

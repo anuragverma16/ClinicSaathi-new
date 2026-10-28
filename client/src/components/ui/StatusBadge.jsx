@@ -59,6 +59,7 @@ const MAP = {
   NOTIFIED: ['info', 'Notified'],
   DISMISSED: ['neutral', 'Dismissed'],
   APPROVED: ['info', 'Approved'],
+  REJECTED: ['negative', 'Rejected'],
   SENDING: ['info', 'Sending'],
   // Subscriptions / accounts / tickets
   TRIALING: ['warning', 'Trialing'],

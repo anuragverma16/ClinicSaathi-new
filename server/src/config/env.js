@@ -35,6 +35,12 @@ export const env = {
   // existing installs keep working, but a separate value is recommended.
   fileUrlSecret: process.env.FILE_URL_SECRET || process.env.JWT_ACCESS_SECRET,
   storageDir: path.resolve(process.env.STORAGE_DIR || 'storage/private'),
+  // Profile photos. Leave blank to keep photo uploads switched off.
+  cloudinary: {
+    cloudName: process.env.CLOUDINARY_CLOUD_NAME,
+    apiKey: process.env.CLOUDINARY_API_KEY,
+    apiSecret: process.env.CLOUDINARY_API_SECRET,
+  },
   whatsapp: {
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
     token: process.env.WHATSAPP_TOKEN,

@@ -22,6 +22,7 @@ export { AuditLog } from './AuditLog.js';
 export { Notification } from './Notification.js';
 export { AIConversation } from './AIConversation.js';
 export { SupportTicket } from './SupportTicket.js';
+export { LeaveRequest } from './LeaveRequest.js';
 export { SystemSetting } from './SystemSetting.js';
 export { OtpCode } from './OtpCode.js';
 export { WebhookEvent } from './WebhookEvent.js';

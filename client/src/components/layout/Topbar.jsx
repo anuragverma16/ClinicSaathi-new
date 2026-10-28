@@ -2,7 +2,7 @@ import { useEffect, useRef, useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
 import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { Menu, Bell, LogOut, Search, LayoutDashboard, KeyRound, ChevronDown, Sun, Moon } from 'lucide-react';
+import { Menu, Bell, LogOut, Search, LayoutDashboard, KeyRound, ChevronDown, Sun, Moon, Camera } from 'lucide-react';
 import { useAuth } from '../../hooks/useAuth.jsx';
 import { useTheme } from '../../hooks/useTheme.jsx';
 import { HOME_FOR_ROLE, ROLE_LABEL } from '../../routes/nav.js';
@@ -12,6 +12,8 @@ import { relative } from '../../lib/format.js';
 import { Modal } from '../ui/Modal.jsx';
 import { Field, fieldErrors } from '../ui/Page.jsx';
 import { Spinner } from '../ui/States.jsx';
+import { Avatar } from '../ui/Avatar.jsx';
+import { ProfilePhotoModal } from './ProfilePhoto.jsx';
 
 const PATIENT_SEARCH_PATH = {
   CLINIC_OWNER: '/clinic/patients', BRANCH_MANAGER: '/clinic/branch/patients', DOCTOR: '/clinic/doctor/patients',
@@ -88,6 +90,7 @@ export function Topbar({ onMenu }) {
   const navigate = useNavigate();
   const [showMenu, setShowMenu] = useState(false);
   const [pwOpen, setPwOpen] = useState(false);
+  const [photoOpen, setPhotoOpen] = useState(false);
   const [q, setQ] = useState('');
   const menuRef = useRef(null);
   const isStaff = user && !['SUPER_ADMIN', 'PATIENT'].includes(user.role);
@@ -137,9 +140,7 @@ export function Topbar({ onMenu }) {
       <div className="relative" ref={menuRef}>
         <button onClick={() => setShowMenu((s) => !s)} aria-label="Open profile menu" aria-expanded={showMenu}
                 className="flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 hover:bg-paper-sunk">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 text-sm font-semibold text-white ring-2 ring-surface shadow">
-            {user?.name?.[0]?.toUpperCase() || '?'}
-          </span>
+          <Avatar name={user?.name} src={user?.avatarUrl} className="h-9 w-9 text-sm ring-2 ring-surface shadow" />
           <span className="hidden text-left sm:block">
             <span className="block max-w-[10rem] truncate text-sm font-medium text-ink">{user?.name}</span>
             <span className="block text-xs text-ink-muted">{ROLE_LABEL[user?.role]}</span>
@@ -148,15 +149,24 @@ export function Topbar({ onMenu }) {
         </button>
         {showMenu && (
           <div className="absolute right-0 top-12 z-30 w-56 rounded-card border border-line bg-surface p-1 shadow-lift">
-            <div className="px-3 py-2">
-              <p className="truncate text-sm font-medium">{user?.name}</p>
-              <p className="truncate text-xs text-ink-muted">{user?.email || user?.phone}</p>
+            <div className="flex items-center gap-3 px-3 py-2">
+              <Avatar name={user?.name} src={user?.avatarUrl} className="h-10 w-10 text-sm" />
+              <div className="min-w-0">
+                <p className="truncate text-sm font-medium">{user?.name}</p>
+                <p className="truncate text-xs text-ink-muted">{user?.email || user?.phone}</p>
+              </div>
             </div>
             <hr className="my-1 border-line" />
             <Link to={HOME_FOR_ROLE[user?.role] || '/'} onClick={() => setShowMenu(false)}
                   className="flex items-center gap-2 rounded-lg px-3 py-2 text-sm text-ink-soft hover:bg-paper-sunk">
               <LayoutDashboard className="h-4 w-4" /> Dashboard
             </Link>
+            {user?.role !== 'SUPER_ADMIN' && (
+              <button onClick={() => { setShowMenu(false); setPhotoOpen(true); }}
+                      className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-soft hover:bg-paper-sunk">
+                <Camera className="h-4 w-4" /> Profile photo
+              </button>
+            )}
             {user?.role !== 'PATIENT' && (
               <button onClick={() => { setShowMenu(false); setPwOpen(true); }}
                       className="flex w-full items-center gap-2 rounded-lg px-3 py-2 text-left text-sm text-ink-soft hover:bg-paper-sunk">
@@ -171,6 +181,7 @@ export function Topbar({ onMenu }) {
         )}
       </div>
       <ChangePassword open={pwOpen} onClose={() => setPwOpen(false)} />
+      <ProfilePhotoModal open={photoOpen} onClose={() => setPhotoOpen(false)} />
     </header>
   );
 }

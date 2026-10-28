@@ -21,6 +21,7 @@ export const ROLE_NAV = {
     { to: '/clinic/patients', label: 'Patients', icon: 'Users', section: 'Front desk' },
     { to: '/clinic/doctors', label: 'Doctors', icon: 'Stethoscope', section: 'Clinical' },
     { to: '/clinic/staff', label: 'Staff Management', icon: 'UserCog', section: 'Organisation' },
+    { to: '/clinic/leave-requests', label: 'Leave Requests', icon: 'CalendarOff', section: 'Organisation' },
     { to: '/clinic/services', label: 'Services and Fees', icon: 'ClipboardList', section: 'Clinical' },
     { to: '/clinic/calendar', label: 'Calendar and Availability', icon: 'CalendarRange', section: 'Front desk' },
     { to: '/clinic/queue', label: 'Queue Management', icon: 'ListOrdered', feature: 'queue', section: 'Front desk' },
@@ -40,6 +41,7 @@ export const ROLE_NAV = {
     { to: '/clinic/branch/queue', label: 'Queue Status', icon: 'ListOrdered', feature: 'queue', section: 'Operations' },
     { to: '/clinic/branch/schedules', label: 'Doctor Schedules', icon: 'CalendarRange', section: 'Team' },
     { to: '/clinic/branch/staff', label: 'Branch Staff', icon: 'UserCog', section: 'Team' },
+    { to: '/clinic/branch/leave', label: 'My Leave', icon: 'CalendarOff', section: 'Team' },
     { to: '/clinic/branch/patients', label: 'Patients', icon: 'Users', section: 'Operations' },
     { to: '/clinic/branch/reports', label: 'Reports and Collections', icon: 'BarChart3', feature: 'reports', section: 'Insights' },
     { to: '/clinic/branch/settings', label: 'Branch Settings', icon: 'Settings', section: 'Insights' },
@@ -47,6 +49,7 @@ export const ROLE_NAV = {
   DOCTOR: [
     { to: '/clinic/doctor/dashboard', label: 'My Dashboard', icon: 'LayoutDashboard', section: 'Overview' },
     { to: '/clinic/doctor/schedule', label: 'My Schedule', icon: 'CalendarDays', section: 'Overview' },
+    { to: '/clinic/doctor/leave', label: 'My Leave', icon: 'CalendarOff', section: 'Overview' },
     { to: '/clinic/doctor/queue', label: 'Consultation Queue', icon: 'ListOrdered', feature: 'queue', section: 'Consult' },
     { to: '/clinic/doctor/patients', label: 'Patient History', icon: 'Users', section: 'Consult' },
     { to: '/clinic/doctor/consultations', label: 'Consultations', icon: 'Stethoscope', section: 'Consult' },
@@ -68,6 +71,7 @@ export const ROLE_NAV = {
     { to: '/clinic/reception/changes', label: 'Rescheduling and Cancellations', icon: 'CalendarClock', section: 'Bookings' },
     { to: '/clinic/reception/communication', label: 'Patient Communication', icon: 'MessageCircle', section: 'Desk' },
     { to: '/clinic/reception/payments', label: 'Payment Status', icon: 'Receipt', feature: 'billing', section: 'Desk' },
+    { to: '/clinic/reception/leave', label: 'My Leave', icon: 'CalendarOff', section: 'Desk' },
   ],
   ACCOUNTANT: [
     { to: '/clinic/accounts/dashboard', label: 'Financial Overview', icon: 'LayoutDashboard', section: 'Overview' },
@@ -80,10 +84,12 @@ export const ROLE_NAV = {
     { to: '/clinic/accounts/gst', label: 'GST Invoices', icon: 'Percent', feature: 'billing', section: 'Billing' },
     { to: '/clinic/accounts/reconciliation', label: 'Reconciliation', icon: 'Scale', feature: 'billing', section: 'Books' },
     { to: '/clinic/accounts/reports', label: 'Financial Reports', icon: 'BarChart3', feature: 'billing', section: 'Books' },
+    { to: '/clinic/accounts/leave', label: 'My Leave', icon: 'CalendarOff', section: 'Me' },
   ],
   LAB_TECHNICIAN: [
     { to: '/clinic/lab/dashboard', label: 'Lab Worklist', icon: 'FlaskConical', section: 'Lab' },
     { to: '/clinic/lab/completed', label: 'Submitted Results', icon: 'ClipboardCheck', section: 'Lab' },
+    { to: '/clinic/lab/leave', label: 'My Leave', icon: 'CalendarOff', section: 'Me' },
   ],
   PATIENT: [
     { to: '/patient/dashboard', label: 'My Health', icon: 'LayoutDashboard', section: 'Overview' },

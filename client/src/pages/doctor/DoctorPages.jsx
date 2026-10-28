@@ -1,7 +1,8 @@
 import { useState } from 'react';
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { Download, Plus, Search, RefreshCw, Copy } from 'lucide-react';
+import { Link } from 'react-router-dom';
+import { Download, Plus, Search, RefreshCw, Copy, CalendarOff } from 'lucide-react';
 import { api, unwrap, unwrapPage, openFile } from '../../lib/api.js';
 import { PageHeader, Tabs, Section, Field, Drawer, Pagination, useReasonPrompt } from '../../components/ui/Page.jsx';
 import { DataTable } from '../../components/ui/DataTable.jsx';
@@ -200,30 +201,16 @@ export function CalendarSyncCard({ doctorId }) {
 }
 
 export function DoctorSchedule() {
-  const qc = useQueryClient();
   const me = useQuery({ queryKey: ['doctors', 'me'], queryFn: () => api.get('/doctors/me').then(unwrap) });
-  const [leave, setLeave] = useState({ from: '', to: '', reason: '' });
-  const add = useMutation({
-    mutationFn: () => api.post('/doctors/me/leaves', leave),
-    onSuccess: () => { toast.success('Leave recorded — those days are closed for booking'); setLeave({ from: '', to: '', reason: '' }); qc.invalidateQueries({ queryKey: ['doctors'] }); },
-    onError: (e) => toast.error(e.message),
-  });
   return (
     <div className="space-y-6">
       <Appointments mode="doctor" />
       <div className="grid gap-5 lg:grid-cols-2">
         <WeeklyHours />
         <CalendarSyncCard doctorId={me.data?._id} />
-        <Section title="Request leave">
-          <div className="space-y-3">
-            <div className="grid gap-3 sm:grid-cols-2">
-              <Field label="From" htmlFor="dl-f"><input id="dl-f" type="date" className="field" value={leave.from} onChange={(e) => setLeave({ ...leave, from: e.target.value })} /></Field>
-              <Field label="To" htmlFor="dl-t"><input id="dl-t" type="date" className="field" value={leave.to} onChange={(e) => setLeave({ ...leave, to: e.target.value })} /></Field>
-            </div>
-            <Field label="Reason" htmlFor="dl-r"><input id="dl-r" className="field" value={leave.reason} onChange={(e) => setLeave({ ...leave, reason: e.target.value })} /></Field>
-            <p className="text-xs text-ink-muted">Existing bookings on those days are not moved automatically — ask the front desk to reschedule them.</p>
-            <button className="btn-primary" disabled={!leave.from || !leave.to || add.isPending} onClick={() => add.mutate()}>Add leave</button>
-          </div>
+        <Section title="Leave">
+          <p className="text-sm text-ink-soft">Leave goes to the clinic owner for approval. Once approved, those days close for booking.</p>
+          <Link to="/clinic/doctor/leave" className="btn-primary mt-4"><CalendarOff className="h-4 w-4" /> Request leave</Link>
         </Section>
       </div>
     </div>

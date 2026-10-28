@@ -31,7 +31,8 @@ const doctorSchema = new db.Schema({
   availability: [availabilityRuleSchema],
   scheduleOverrides: [scheduleOverrideSchema],
   breaks: [{ dayOfWeek: Number, startTime: String, endTime: String }],
-  leaves: [{ from: Date, to: Date, reason: String }],
+  // leaveRequestId marks days closed by an approved LeaveRequest, so cancelling it reopens them.
+  leaves: [{ from: Date, to: Date, reason: String, leaveRequestId: { type: db.Schema.Types.ObjectId, ref: 'LeaveRequest' } }],
   serviceIds: [{ type: db.Schema.Types.ObjectId, ref: 'Service' }],
   supportsOnline: { type: Boolean, default: false },
   // Queue token letter (A, B, ... AA). Assigned once so two doctors never share one.

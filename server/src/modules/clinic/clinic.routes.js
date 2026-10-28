@@ -183,7 +183,7 @@ async function checkLinks(req, { branchId, doctorId, role }, userId) {
 router.get('/staff', requirePermission('staff:read'), catchAsync(async (req, res) => {
   const filter = { clinicId: req.tenant.clinicId, role: { $nin: [ROLES.PATIENT] } };
   if (req.user.role === ROLES.BRANCH_MANAGER) filter.branchId = req.tenant.branchId;
-  const users = await User.find(filter).select('name email phone role branchId doctorId isActive lastLoginAt createdAt')
+  const users = await User.find(filter).select('name email phone role branchId doctorId isActive lastLoginAt createdAt avatarUrl')
     .populate({ path: 'branchId', select: 'name', options: { clinicId: req.tenant.clinicId } })
     .populate({ path: 'doctorId', select: 'name specialization', options: { clinicId: req.tenant.clinicId } })
     .sort({ createdAt: -1 });

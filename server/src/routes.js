@@ -20,6 +20,7 @@ import analyticsRoutes from './modules/analytics/analytics.routes.js';
 import automationRoutes from './modules/automation/automation.routes.js';
 import portalRoutes from './modules/portal/portal.routes.js';
 import platformRoutes from './modules/platform/platform.routes.js';
+import leaveRoutes from './modules/leave/leave.routes.js';
 import { signRouter, downloadRouter } from './modules/files/files.routes.js';
 
 const router = Router();
@@ -54,5 +55,6 @@ router.use('/lab', labRoutes);
 router.use('/billing', billingRoutes);
 router.use('/analytics', analyticsRoutes);
 router.use('/automation', automationRoutes);
+router.use('/leaves', leaveRoutes);
 
 export default router;

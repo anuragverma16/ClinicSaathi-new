@@ -12,6 +12,7 @@ import { DataTable } from '../../components/ui/DataTable.jsx';
 import { EmptyState, Spinner } from '../../components/ui/States.jsx';
 import { PageHeader, Drawer, Field, fieldErrors } from '../../components/ui/Page.jsx';
 import { StatusBadge } from '../../components/ui/StatusBadge.jsx';
+import { Avatar } from '../../components/ui/Avatar.jsx';
 import { ROLE_LABEL } from '../../routes/nav.js';
 import { relative } from '../../lib/format.js';
 
@@ -25,6 +26,8 @@ const ROLE_META = {
   LAB_TECHNICIAN: { icon: FlaskConical, help: 'Lab worklist; uploads results for the doctor to verify.', tile: 'bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300', ring: 'ring-rose-500', badge: 'bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-400/10 dark:text-rose-300 dark:ring-rose-400/25' },
 };
 const ROLES = Object.keys(ROLE_META);
+// The filter lists every login in the clinic, the owner included. The add form only offers ROLES.
+const FILTER_ROLES = ['CLINIC_OWNER', ...ROLES];
 const OWNER_BADGE = 'bg-navy/5 text-ink ring-line';
 
 const STRONG = /^(?=.*[A-Za-z])(?=.*\d).{8,}$/;
@@ -335,7 +338,7 @@ export default function Staff({ title = 'Staff management', readOnly }) {
       && (!s || r.name.toLowerCase().includes(s) || r.email?.toLowerCase().includes(s) || r.phone?.includes(s)));
   }, [data, roleFilter, q]);
 
-  const chips = [['', 'All', data?.length || 0], ...ROLES.map((r) => [r, ROLE_LABEL[r], counts[r] || 0])];
+  const chips = [['', 'All', data?.length || 0], ...FILTER_ROLES.map((r) => [r, ROLE_LABEL[r], counts[r] || 0])];
 
   return (
     <div>
@@ -367,7 +370,7 @@ export default function Staff({ title = 'Staff management', readOnly }) {
         columns={[
           { key: 'name', header: 'Name', sort: (r) => r.name, render: (r) => (
             <div className="flex items-center gap-3">
-              <span className={`flex h-9 w-9 shrink-0 items-center justify-center rounded-full text-sm font-semibold ${ROLE_META[r.role]?.tile || 'bg-navy/5 text-ink'}`}>{r.name?.[0]?.toUpperCase()}</span>
+              <Avatar name={r.name} src={r.avatarUrl} className="h-9 w-9 text-sm" tone={ROLE_META[r.role]?.tile || 'bg-navy/5 text-ink'} />
               <div className="min-w-0"><p className="truncate font-medium">{r.name}</p><p className="truncate text-xs text-ink-muted">{r.email}</p></div>
             </div>
           ) },

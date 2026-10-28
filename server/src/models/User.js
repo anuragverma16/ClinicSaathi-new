@@ -16,6 +16,9 @@ const userSchema = new db.Schema({
   patientId: { type: db.Schema.Types.ObjectId, ref: 'Patient' },
   isActive: { type: Boolean, default: true },
   lastLoginAt: Date,
+  // Cloudinary profile photo. The public id is kept so a replaced or removed photo can be deleted.
+  avatarUrl: String,
+  avatarPublicId: { type: String, select: false },
 
   // Hash of the one refresh token currently valid for this user. Rotated on
   // every refresh and cleared on logout, so a stolen token stops working.

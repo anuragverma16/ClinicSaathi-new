@@ -11,7 +11,7 @@ function CalendarMock() {
       <div className="flex items-center justify-between text-sm font-medium"><span>Dr. Anjali Mehta</span><span className="text-ink-muted">Fri, 24 Apr</span></div>
       <div className="mt-4 grid grid-cols-4 gap-2">
         {['9:00', '9:15', '9:30', '9:45'].map((t, i) => (
-          <div key={t} className={`rounded-lg border px-2 py-3 text-center text-xs font-mono ${i === 2 ? 'border-pulse bg-pulse text-white' : 'border-line bg-paper-sunk text-ink-muted'}`}>{t}</div>
+          <div key={t} className={`rounded-lg border px-2 py-3 text-center text-xs font-mono ${i === 2 ? 'border-pulse bg-pulse text-on-pulse' : 'border-line bg-paper-sunk text-ink-muted'}`}>{t}</div>
         ))}
       </div>
       <div className="mt-3 rounded-lg bg-pulse-soft px-3 py-2 text-xs text-pulse-deep">Booked via WhatsApp · confirmation sent</div>
