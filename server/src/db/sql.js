@@ -36,7 +36,10 @@ function typeCast(field, next) {
 export async function connect(cfg) {
   config = cfg;
   const admin = await mysql.createConnection({ host: cfg.host, port: cfg.port, user: cfg.user, password: cfg.password });
-  await admin.query(`CREATE DATABASE IF NOT EXISTS ${q(cfg.database)} CHARACTER SET utf8mb4 COLLATE utf8mb4_bin`);
+  // Managed hosts create the database for you and often withhold CREATE privileges,
+  // so only try to create it when it's actually missing.
+  const [existing] = await admin.query('SELECT SCHEMA_NAME FROM information_schema.SCHEMATA WHERE SCHEMA_NAME = ?', [cfg.database]);
+  if (!existing.length) await admin.query(`CREATE DATABASE ${q(cfg.database)} CHARACTER SET utf8mb4 COLLATE utf8mb4_bin`);
   await admin.end();
   pool = mysql.createPool({
     host: cfg.host, port: cfg.port, user: cfg.user, password: cfg.password, database: cfg.database,
