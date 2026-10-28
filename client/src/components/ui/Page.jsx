@@ -85,7 +85,7 @@ export function Drawer({ open, onClose, title, subtitle, children, footer, width
   useDialog(open, onClose, panel, { from: { x: 48, opacity: 0 }, to: { x: 0, opacity: 1 } });
   if (!open) return null;
   return createPortal(
-    <div className="fixed inset-0 z-[60] flex justify-end bg-navy/45 backdrop-blur-[3px]" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
+    <div className="fixed inset-0 z-[60] flex justify-end bg-navy/45 backdrop-blur-[3px] dark:bg-black/60" onMouseDown={(e) => e.target === e.currentTarget && onClose()}>
       <aside ref={panel} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}
              className={`flex h-[100dvh] w-full ${width} flex-col bg-paper shadow-2xl outline-none`}>
         <header className="flex shrink-0 items-start justify-between gap-3 border-b border-line bg-surface px-5 py-4 sm:px-6">

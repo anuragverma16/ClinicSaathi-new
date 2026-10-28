@@ -13,14 +13,15 @@ import { SlotPicker } from './BookingForm.jsx';
 
 const DAY_NAMES = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
 
-// Left edge + chip colour per appointment status.
+// Left edge + chip colour per appointment status. The tints are too light to
+// survive dark mode, so each carries a translucent-fill version of itself.
 const STATUS_STYLE = {
-  REQUESTED: { bar: 'border-l-amber-400', chip: 'bg-amber-50 text-amber-700', label: 'Requested' },
-  CONFIRMED: { bar: 'border-l-sky-500', chip: 'bg-sky-50 text-sky-700', label: 'Confirmed' },
-  CHECKED_IN: { bar: 'border-l-violet-500', chip: 'bg-violet-50 text-violet-700', label: 'Checked in' },
-  WAITING: { bar: 'border-l-orange-500', chip: 'bg-orange-50 text-orange-700', label: 'Waiting' },
-  IN_CONSULTATION: { bar: 'border-l-fuchsia-500', chip: 'bg-fuchsia-50 text-fuchsia-700', label: 'In consult' },
-  COMPLETED: { bar: 'border-l-emerald-500', chip: 'bg-emerald-50 text-emerald-700', label: 'Done' },
+  REQUESTED: { bar: 'border-l-amber-400', chip: 'bg-amber-50 text-amber-700 dark:bg-amber-400/10 dark:text-amber-300', label: 'Requested' },
+  CONFIRMED: { bar: 'border-l-sky-500', chip: 'bg-sky-50 text-sky-700 dark:bg-sky-400/10 dark:text-sky-300', label: 'Confirmed' },
+  CHECKED_IN: { bar: 'border-l-violet-500', chip: 'bg-violet-50 text-violet-700 dark:bg-violet-400/10 dark:text-violet-300', label: 'Checked in' },
+  WAITING: { bar: 'border-l-orange-500', chip: 'bg-orange-50 text-orange-700 dark:bg-orange-400/10 dark:text-orange-300', label: 'Waiting' },
+  IN_CONSULTATION: { bar: 'border-l-fuchsia-500', chip: 'bg-fuchsia-50 text-fuchsia-700 dark:bg-fuchsia-400/10 dark:text-fuchsia-300', label: 'In consult' },
+  COMPLETED: { bar: 'border-l-emerald-500', chip: 'bg-emerald-50 text-emerald-700 dark:bg-emerald-400/10 dark:text-emerald-300', label: 'Done' },
 };
 
 // Working-hours timeline spans 07:00–21:00.
@@ -143,7 +144,7 @@ export default function CalendarPage() {
                    aria-label={`${d.format('dddd D MMMM')}, ${list.length} bookings — show open slots`}
                    style={{ animationDelay: `${i * 40}ms` }}
                    className={`rise-in group relative flex min-h-[260px] cursor-pointer flex-col overflow-hidden rounded-2xl border bg-surface shadow-card transition-all duration-200 hover:-translate-y-0.5 hover:shadow-lift
-                     ${isToday ? 'border-transparent ring-2 ring-pulse/60' : selected ? 'border-sky-300 ring-2 ring-sky-200' : 'border-line/80'}
+                     ${isToday ? 'border-transparent ring-2 ring-pulse/60' : selected ? 'border-sky-300 ring-2 ring-sky-200 dark:border-sky-400/50 dark:ring-sky-400/25' : 'border-line/80'}
                      ${isPast && !isToday ? 'opacity-75' : ''}`}>
                 {/* Day header */}
                 <div className={`flex items-center gap-2.5 px-3 py-3 ${isToday ? 'bg-gradient-to-br from-teal-500 to-sky-600 text-white' : 'border-b border-line/70 bg-paper-sunk/40'}`}>
@@ -162,7 +163,7 @@ export default function CalendarPage() {
                 {/* Day body */}
                 <div className={`relative flex-1 p-2 ${closed ? 'bg-[repeating-linear-gradient(135deg,transparent,transparent_8px,rgb(251_191_36/0.10)_8px,rgb(251_191_36/0.10)_16px)]' : ''}`}>
                   {closed && (
-                    <p className="mb-2 flex items-center gap-1.5 rounded-lg bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800">
+                    <p className="mb-2 flex items-center gap-1.5 rounded-lg bg-amber-100 px-2 py-1 text-xs font-medium text-amber-800 dark:bg-amber-400/15 dark:text-amber-300">
                       <CalendarOff className="h-3.5 w-3.5" /> Clinic closed
                     </p>
                   )}
@@ -207,7 +208,7 @@ export default function CalendarPage() {
             <span className={`h-3 w-1 rounded-full border-l-[3px] ${s.bar}`} />{s.label}
           </span>
         ))}
-        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-amber-200" />Clinic closed</span>
+        <span className="inline-flex items-center gap-1.5"><span className="h-3 w-3 rounded bg-amber-200 dark:bg-amber-400/40" />Clinic closed</span>
       </div>
 
       <div className="grid gap-5 lg:grid-cols-5">
@@ -261,7 +262,7 @@ export default function CalendarPage() {
                 {doctor.leaves?.some((l) => dayjs(l.to).isAfter(dayjs())) && (
                   <div className="mt-4 flex flex-wrap gap-2">
                     {doctor.leaves.filter((l) => dayjs(l.to).isAfter(dayjs())).map((l) => (
-                      <span key={l._id} className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700 ring-1 ring-rose-200">
+                      <span key={l._id} className="inline-flex items-center gap-1.5 rounded-full bg-rose-50 px-2.5 py-1 text-xs font-medium text-rose-700 ring-1 ring-rose-200 dark:bg-rose-400/10 dark:text-rose-300 dark:ring-rose-400/25">
                         <Plane className="h-3 w-3" /> Leave {dayjs(l.from).format('D MMM')}–{dayjs(l.to).format('D MMM')}{l.reason ? ` · ${l.reason}` : ''}
                       </span>
                     ))}

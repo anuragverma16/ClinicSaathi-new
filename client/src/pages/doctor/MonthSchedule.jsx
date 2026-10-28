@@ -148,7 +148,7 @@ export function MonthSchedule() {
               key={d} type="button" onClick={() => toggleWeekday(i)} aria-pressed={state === 'on'}
               title={`${state === 'on' ? 'Turn off' : 'Turn on'} every ${d} this month`}
               className={`rounded-full border px-3 py-1 text-xs font-medium transition-colors ${
-                state === 'on' ? 'border-transparent bg-pulse text-white'
+                state === 'on' ? 'border-transparent bg-pulse text-on-pulse'
                   : state === 'mixed' ? 'border-pulse/50 bg-pulse-soft text-pulse-deep'
                     : 'border-line bg-surface text-ink-muted hover:border-ink-muted/40'
               }`}

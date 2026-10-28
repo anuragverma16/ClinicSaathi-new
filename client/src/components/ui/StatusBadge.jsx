@@ -1,7 +1,7 @@
 const TONES = {
   neutral: 'bg-paper-sunk text-ink-muted border-line',
   positive: 'bg-pulse-soft text-pulse-deep border-pulse/20',
-  info: 'bg-[#E6EEF9] text-[#1D4E89] border-[#1D4E89]/15',
+  info: 'bg-info-soft text-info border-info/20',
   warning: 'bg-signal-soft text-signal border-signal/25',
   negative: 'bg-alert-soft text-alert border-alert/20',
 };

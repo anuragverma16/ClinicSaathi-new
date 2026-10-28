@@ -81,7 +81,7 @@ export default function ReceptionDashboard() {
           { key: 'patient', header: 'Patient', sort: (r) => r.patientId?.name, render: (r) => (
             <div>
               <p className="flex items-center gap-1.5 font-medium">{r.patientId?.name}
-                {r.isEmergency && <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-1.5 py-px text-[10px] font-bold uppercase text-rose-700"><Siren className="h-3 w-3" />Emergency</span>}
+                {r.isEmergency && <span className="inline-flex items-center gap-1 rounded-full bg-rose-100 px-1.5 py-px text-[10px] font-bold uppercase text-rose-700 dark:bg-rose-400/15 dark:text-rose-300"><Siren className="h-3 w-3" />Emergency</span>}
               </p>
               <p className="font-mono text-xs text-ink-muted">{r.patientId?.phone}</p>
             </div>
@@ -160,9 +160,9 @@ export function WalkIn() {
             <Field label="Reason" htmlFor="wi-r"><input id="wi-r" className="field" value={f.reason} onChange={(e) => setF({ ...f, reason: e.target.value })} /></Field>
             <label className="mt-7 flex items-center gap-2 text-sm"><input type="checkbox" checked={f.priority} onChange={(e) => setF({ ...f, priority: e.target.checked })} /> Priority (elderly, pregnant, unwell)</label>
           </div>
-          <label className={`flex items-center gap-3 rounded-xl border p-3 text-sm transition-colors ${f.emergency ? 'border-rose-300 bg-rose-50 text-rose-800' : 'border-line'}`}>
+          <label className={`flex items-center gap-3 rounded-xl border p-3 text-sm transition-colors ${f.emergency ? 'border-rose-300 bg-rose-50 text-rose-800 dark:border-rose-400/40 dark:bg-rose-400/10 dark:text-rose-200' : 'border-line'}`}>
             <input type="checkbox" checked={f.emergency} onChange={(e) => setF({ ...f, emergency: e.target.checked })} />
-            <Siren className={`h-4 w-4 ${f.emergency ? 'text-rose-600' : 'text-ink-muted'}`} />
+            <Siren className={`h-4 w-4 ${f.emergency ? 'text-rose-600 dark:text-rose-300' : 'text-ink-muted'}`} />
             <span><b>Emergency booking</b> — goes to the top of the doctor's queue and is flagged on every desk view.</span>
           </label>
           <div className="flex justify-end"><button className="btn-primary" disabled={!ready || go.isPending} onClick={() => go.mutate()}>{go.isPending && <Spinner />} Register and issue token</button></div>

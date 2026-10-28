@@ -50,8 +50,10 @@ function PlanCard({ subscription, entitlements, role }) {
           <div className="h-full rounded-full bg-teal-400 transition-[width] duration-700" style={{ width: `${pct}%` }} />
         </div>
       )}
+      {/* Fixed teal, not the themed `pulse`: in the light theme `pulse` is the
+          sidebar's own navy, which left this button invisible. */}
       {owner && (
-        <Link to="/clinic/subscription" className="mt-2.5 flex items-center justify-center gap-1.5 rounded-lg bg-pulse py-1.5 text-xs font-medium text-white transition-colors hover:bg-pulse-deep">
+        <Link to="/clinic/subscription" className="mt-2.5 flex items-center justify-center gap-1.5 rounded-lg bg-teal-400 py-1.5 text-xs font-semibold text-navy transition-colors hover:bg-teal-300">
           <Zap className="h-3.5 w-3.5" /> {trialing || !entitlements.live ? 'Upgrade plan' : 'Manage plan'}
         </Link>
       )}

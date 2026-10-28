@@ -1,6 +1,9 @@
 /** @type {import('tailwindcss').Config} */
 export default {
   content: ['./index.html', './src/**/*.{js,jsx}'],
+  // `dark:` follows the same attribute ThemeProvider sets, for the handful of
+  // fixed Tailwind tints (bg-amber-50, bg-rose-50, …) that have no token.
+  darkMode: ['selector', 'html[data-theme="dark"]'],
   theme: {
     extend: {
       colors: {
@@ -25,6 +28,9 @@ export default {
           soft: 'rgb(var(--pulse-soft-rgb) / <alpha-value>)',
           deep: 'rgb(var(--pulse-deep-rgb) / <alpha-value>)',
         },
+        // Label colour for anything filled with `pulse` — white on light, near
+        // black on the lighter teal dark mode uses.
+        'on-pulse': 'rgb(var(--on-pulse-rgb) / <alpha-value>)',
         signal: {
           DEFAULT: 'rgb(var(--signal-rgb) / <alpha-value>)',
           soft: 'rgb(var(--signal-soft-rgb) / <alpha-value>)',
@@ -33,9 +39,15 @@ export default {
           DEFAULT: 'rgb(var(--alert-rgb) / <alpha-value>)',
           soft: 'rgb(var(--alert-soft-rgb) / <alpha-value>)',
         },
+        info: {
+          DEFAULT: 'rgb(var(--info-rgb) / <alpha-value>)',
+          soft: 'rgb(var(--info-soft-rgb) / <alpha-value>)',
+        },
         line: 'rgb(var(--line-rgb) / <alpha-value>)',
-        // Fixed brand dark teal (iPhone 16 inspired) for the app sidebar — not theme-swapped.
-        navy: { DEFAULT: '#054C44', soft: '#1A9888', line: '#2CB4A8', text: '#CFFAF6' },
+        // Brand dark teal (iPhone 16 inspired) for the sidebar, the page banner
+        // and dialog scrims. The accents on top of it are fixed; the base drops
+        // a few stops in dark mode so it isn't the brightest thing on screen.
+        navy: { DEFAULT: 'rgb(var(--navy-rgb) / <alpha-value>)', soft: '#1A9888', line: '#2CB4A8', text: '#CFFAF6' },
       },
       fontFamily: {
         display: ['"Instrument Sans"', 'system-ui', 'sans-serif'],

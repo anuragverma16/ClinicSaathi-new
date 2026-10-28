@@ -63,7 +63,7 @@ export function Modal({ open, onClose, title, subtitle, icon: Icon, children, fo
   if (!open) return null;
 
   return createPortal(
-    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-navy/45 backdrop-blur-[3px] sm:items-center sm:p-6"
+    <div className="fixed inset-0 z-[60] flex items-end justify-center bg-navy/45 backdrop-blur-[3px] dark:bg-black/60 sm:items-center sm:p-6"
          onMouseDown={(e) => e.target === e.currentTarget && onClose?.()}>
       <div ref={panel} role="dialog" aria-modal="true" aria-label={title} tabIndex={-1}
            className={`flex max-h-[92dvh] w-full ${width} flex-col overflow-hidden rounded-t-2xl bg-surface shadow-2xl outline-none sm:max-h-[min(88dvh,860px)] sm:rounded-2xl`}>

@@ -15,13 +15,14 @@ import { StatusBadge } from '../../components/ui/StatusBadge.jsx';
 import { ROLE_LABEL } from '../../routes/nav.js';
 import { relative } from '../../lib/format.js';
 
-// Every role a clinic owner can add. Class strings are written out in full so Tailwind keeps them.
+// Every role a clinic owner can add. Class strings are written out in full so
+// Tailwind keeps them, each with the translucent fill dark mode needs.
 const ROLE_META = {
-  DOCTOR: { icon: Stethoscope, help: 'Own schedule, queue and patients; writes notes, prescriptions and lab orders.', tile: 'bg-sky-50 text-sky-600', ring: 'ring-sky-500', badge: 'bg-sky-50 text-sky-700 ring-sky-200' },
-  RECEPTIONIST: { icon: ClipboardCheck, help: 'Bookings, registration, check-in and the waiting queue. No clinical notes.', tile: 'bg-teal-50 text-teal-600', ring: 'ring-teal-500', badge: 'bg-teal-50 text-teal-700 ring-teal-200' },
-  BRANCH_MANAGER: { icon: GitBranch, help: 'Runs one branch: its appointments, queue, schedules and reports.', tile: 'bg-violet-50 text-violet-600', ring: 'ring-violet-500', badge: 'bg-violet-50 text-violet-700 ring-violet-200' },
-  ACCOUNTANT: { icon: Calculator, help: 'Invoices, payments, refunds, GST and financial reports.', tile: 'bg-amber-50 text-amber-600', ring: 'ring-amber-500', badge: 'bg-amber-50 text-amber-700 ring-amber-200' },
-  LAB_TECHNICIAN: { icon: FlaskConical, help: 'Lab worklist; uploads results for the doctor to verify.', tile: 'bg-rose-50 text-rose-600', ring: 'ring-rose-500', badge: 'bg-rose-50 text-rose-700 ring-rose-200' },
+  DOCTOR: { icon: Stethoscope, help: 'Own schedule, queue and patients; writes notes, prescriptions and lab orders.', tile: 'bg-sky-50 text-sky-600 dark:bg-sky-400/10 dark:text-sky-300', ring: 'ring-sky-500', badge: 'bg-sky-50 text-sky-700 ring-sky-200 dark:bg-sky-400/10 dark:text-sky-300 dark:ring-sky-400/25' },
+  RECEPTIONIST: { icon: ClipboardCheck, help: 'Bookings, registration, check-in and the waiting queue. No clinical notes.', tile: 'bg-teal-50 text-teal-600 dark:bg-teal-400/10 dark:text-teal-300', ring: 'ring-teal-500', badge: 'bg-teal-50 text-teal-700 ring-teal-200 dark:bg-teal-400/10 dark:text-teal-300 dark:ring-teal-400/25' },
+  BRANCH_MANAGER: { icon: GitBranch, help: 'Runs one branch: its appointments, queue, schedules and reports.', tile: 'bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300', ring: 'ring-violet-500', badge: 'bg-violet-50 text-violet-700 ring-violet-200 dark:bg-violet-400/10 dark:text-violet-300 dark:ring-violet-400/25' },
+  ACCOUNTANT: { icon: Calculator, help: 'Invoices, payments, refunds, GST and financial reports.', tile: 'bg-amber-50 text-amber-600 dark:bg-amber-400/10 dark:text-amber-300', ring: 'ring-amber-500', badge: 'bg-amber-50 text-amber-700 ring-amber-200 dark:bg-amber-400/10 dark:text-amber-300 dark:ring-amber-400/25' },
+  LAB_TECHNICIAN: { icon: FlaskConical, help: 'Lab worklist; uploads results for the doctor to verify.', tile: 'bg-rose-50 text-rose-600 dark:bg-rose-400/10 dark:text-rose-300', ring: 'ring-rose-500', badge: 'bg-rose-50 text-rose-700 ring-rose-200 dark:bg-rose-400/10 dark:text-rose-300 dark:ring-rose-400/25' },
 };
 const ROLES = Object.keys(ROLE_META);
 const OWNER_BADGE = 'bg-navy/5 text-ink ring-line';
@@ -93,7 +94,7 @@ function CreatedCard({ created, onDone, onAnother }) {
   const text = `ClinicSaathi sign-in\nURL: ${window.location.origin}/login\nEmail: ${created.email}\nTemporary password: ${created.password}`;
   return (
     <div className="flex flex-col items-center px-2 py-6 text-center">
-      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600"><CheckCircle2 className="h-8 w-8" /></span>
+      <span className="flex h-14 w-14 items-center justify-center rounded-full bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300"><CheckCircle2 className="h-8 w-8" /></span>
       <h3 className="mt-4 font-display text-xl font-semibold text-ink">{created.name} is added</h3>
       <div className="mt-2"><RoleBadge role={created.role} /></div>
       <p className="mt-3 max-w-sm text-sm text-ink-muted">Share these sign-in details privately. Ask them to change the password after their first sign-in.</p>

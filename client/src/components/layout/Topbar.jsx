@@ -137,7 +137,7 @@ export function Topbar({ onMenu }) {
       <div className="relative" ref={menuRef}>
         <button onClick={() => setShowMenu((s) => !s)} aria-label="Open profile menu" aria-expanded={showMenu}
                 className="flex items-center gap-2 rounded-lg py-1 pl-1 pr-2 hover:bg-paper-sunk">
-          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-sky-600 text-sm font-semibold text-white ring-2 ring-white shadow">
+          <span className="flex h-9 w-9 shrink-0 items-center justify-center rounded-full bg-gradient-to-br from-teal-500 to-emerald-600 text-sm font-semibold text-white ring-2 ring-surface shadow">
             {user?.name?.[0]?.toUpperCase() || '?'}
           </span>
           <span className="hidden text-left sm:block">

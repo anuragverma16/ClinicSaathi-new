@@ -145,10 +145,10 @@ function SubscriptionHealth({ k }) {
 /** Messaging and AI consumption as icon rows. */
 function UsagePanel({ k }) {
   const rows = [
-    { label: 'AI tokens', value: k?.aiUsage, icon: Sparkles, tile: 'bg-violet-50 text-violet-600' },
-    { label: 'WhatsApp messages', value: k?.whatsappUsage, icon: MessageCircle, tile: 'bg-emerald-50 text-emerald-600' },
-    { label: 'SMS sent', value: k?.smsUsage, icon: MessageSquare, tile: 'bg-sky-50 text-sky-600' },
-    { label: 'Emails sent', value: k?.emailUsage, icon: Mail, tile: 'bg-amber-50 text-amber-600' },
+    { label: 'AI tokens', value: k?.aiUsage, icon: Sparkles, tile: 'bg-violet-50 text-violet-600 dark:bg-violet-400/10 dark:text-violet-300' },
+    { label: 'WhatsApp messages', value: k?.whatsappUsage, icon: MessageCircle, tile: 'bg-emerald-50 text-emerald-600 dark:bg-emerald-400/10 dark:text-emerald-300' },
+    { label: 'SMS sent', value: k?.smsUsage, icon: MessageSquare, tile: 'bg-sky-50 text-sky-600 dark:bg-sky-400/10 dark:text-sky-300' },
+    { label: 'Emails sent', value: k?.emailUsage, icon: Mail, tile: 'bg-amber-50 text-amber-600 dark:bg-amber-400/10 dark:text-amber-300' },
   ];
   return (
     <Panel title="Usage" icon={Sparkles}>

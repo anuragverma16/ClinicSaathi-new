@@ -18,25 +18,45 @@
     --signal-soft-rgb: 254 252 232;
     --alert-rgb: 220 38 38;
     --alert-soft-rgb: 254 226 226;
+    --info-rgb: 29 78 137;
+    --info-soft-rgb: 230 238 249;
     --line-rgb: 226 232 240;
+    /* Text that sits on a filled --pulse surface (primary button). */
+    --on-pulse-rgb: 255 255 255;
+    /* Brand chrome: sidebar, page banner, auth panel, dialog scrims. */
+    --navy-rgb: 5 76 68;
+    color-scheme: light;
   }
 
-  /* Dark mode for the entire app when data-theme="dark" is set on html */
+  /* Dark mode for the entire app when data-theme="dark" is set on html.
+     The neutrals are tinted towards the brand teal (hue ~190) instead of
+     slate blue, so the canvas, the cards and the teal sidebar read as one
+     palette rather than two. Everything is kept a few stops below the light
+     values — no pure white text, no saturated fills — so a night shift
+     isn't staring into a lit screen. */
   html[data-theme="dark"] {
-    --ink-rgb: 241 245 249;
-    --ink-soft-rgb: 203 213 225;
-    --ink-muted-rgb: 148 163 184;
-    --paper-rgb: 15 23 42;
-    --paper-sunk-rgb: 30 41 59;
-    --surface-rgb: 30 41 59;
-    --pulse-rgb: 20 184 166;
-    --pulse-soft-rgb: 12 74 110;
-    --pulse-deep-rgb: 13 148 136;
-    --signal-rgb: 251 146 60;
-    --signal-soft-rgb: 120 53 15;
-    --alert-rgb: 239 68 68;
-    --alert-soft-rgb: 127 29 29;
-    --line-rgb: 51 65 85;
+    --ink-rgb: 224 237 238;
+    --ink-soft-rgb: 178 201 203;
+    --ink-muted-rgb: 129 157 161;
+    --paper-rgb: 9 22 26;
+    --paper-sunk-rgb: 15 32 36;
+    --surface-rgb: 17 38 43;
+    --pulse-rgb: 45 180 168;
+    --pulse-soft-rgb: 10 56 53;
+    /* "deep" means the readable one: on a dark fill that is the lighter teal. */
+    --pulse-deep-rgb: 94 234 212;
+    --signal-rgb: 251 191 36;
+    --signal-soft-rgb: 58 42 14;
+    --alert-rgb: 248 113 113;
+    --alert-soft-rgb: 60 25 27;
+    --info-rgb: 125 211 252;
+    --info-soft-rgb: 13 45 64;
+    --line-rgb: 36 68 73;
+    --on-pulse-rgb: 4 31 28;
+    --navy-rgb: 7 50 46;
+    /* Hands the scrollbars, date pickers and other native chrome to the dark
+       theme too — one bright scrollbar undoes the whole palette at night. */
+    color-scheme: dark;
   }
 
   /* Dark palette for marketing site (existing) */
@@ -54,7 +74,11 @@
     --signal-soft-rgb: 78 48 10;
     --alert-rgb: 239 68 68;
     --alert-soft-rgb: 67 20 7;
+    --info-rgb: 125 211 252;
+    --info-soft-rgb: 12 42 61;
     --line-rgb: 51 65 85;
+    --on-pulse-rgb: 255 255 255;
+    --navy-rgb: 5 76 68;
   }
 
   /* Teal page banner (PageHeader). Re-points the same tokens so buttons,
@@ -68,10 +92,20 @@
     --paper-rgb: 1 52 48;
     --paper-sunk-rgb: 3 65 59;
     --line-rgb: 17 105 96;
-    --pulse-rgb: 5 76 68;
-    --pulse-deep-rgb: 17 155 147;
+    /* The banner is itself the brand teal, so the accent on top of it has to
+       be the lighter one — the sidebar's teal — or a primary button comes out
+       the same colour as the surface it is sitting on. */
+    --pulse-rgb: 45 212 191;
+    --pulse-soft-rgb: 7 99 89;
+    --pulse-deep-rgb: 94 234 212;
+    --on-pulse-rgb: 4 31 28;
     color-scheme: dark;
   }
+
+  /* At night the banner is the brightest thing on the page. It already drops
+     with --navy-rgb; halving the blurred glows stops it blooming into a slab
+     of light next to the cards. */
+  html[data-theme="dark"] .hero-dark .blur-3xl { opacity: 0.45; }
 
   html { -webkit-font-smoothing: antialiased; }
   body {
@@ -100,7 +134,7 @@
   }
   html[data-theme="dark"] select.field,
   html[data-theme="dark"] select.field-sm {
-    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%2394A3B8' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%23819DA1' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
   }
   textarea.field { @apply min-h-[96px] resize-y leading-relaxed; }
   input[type='checkbox'].field, input[type='radio'].field { @apply min-h-0 w-auto; }
@@ -111,6 +145,10 @@
   input[type='checkbox'], input[type='radio'] { accent-color: rgb(var(--pulse-rgb)); }
   .card {
     @apply rounded-xl border border-line bg-surface shadow-[0_1px_2px_rgba(0,0,0,0.04)];
+  }
+  /* A hairline shadow does nothing on a dark canvas — lift the card instead. */
+  html[data-theme="dark"] .card {
+    box-shadow: 0 1px 2px rgb(0 0 0 / 0.35), 0 1px 0 0 rgb(255 255 255 / 0.03) inset;
   }
   /* A card that reacts to the pointer — for clickable tiles, not tables. */
   .card-hover {
@@ -123,10 +161,13 @@
       radial-gradient(800px 300px at 0% 100%, rgba(59, 130, 246, 0.03), transparent 55%),
       rgb(var(--paper-rgb));
   }
+  /* Same two washes as the light canvas, but both in the brand's teal family —
+     the old indigo pass read as a second, competing hue once the neutrals
+     stopped being blue. */
   html[data-theme="dark"] .app-canvas {
     background:
-      radial-gradient(1200px 400px at 100% -10%, rgb(20 184 166 / 0.08), transparent 60%),
-      radial-gradient(900px 380px at -10% 0%, rgb(99 102 241 / 0.04), transparent 55%),
+      radial-gradient(1200px 400px at 100% -10%, rgb(45 180 168 / 0.07), transparent 60%),
+      radial-gradient(900px 380px at -10% 0%, rgb(13 148 136 / 0.05), transparent 55%),
       rgb(var(--paper-rgb));
   }
   .btn {
@@ -134,7 +175,9 @@
            text-[15px] font-medium transition-all duration-200 disabled:cursor-not-allowed disabled:opacity-50;
   }
   .btn-primary {
-    @apply btn bg-pulse text-white shadow-[0_1px_3px_rgba(20,184,166,0.2)]
+    /* White reads on the light theme's deep teal but not on the lighter one
+       dark mode uses, so the label colour is a token of its own. */
+    @apply btn bg-pulse text-on-pulse shadow-[0_1px_3px_rgba(20,184,166,0.2)]
            hover:bg-pulse-deep hover:shadow-[0_2px_6px_rgba(20,184,166,0.3)]
            active:scale-95;
   }
