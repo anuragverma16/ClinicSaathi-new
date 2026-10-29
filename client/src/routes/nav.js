@@ -53,7 +53,7 @@ export const ROLE_NAV = {
     { to: '/clinic/doctor/queue', label: 'Consultation Queue', icon: 'ListOrdered', feature: 'queue', section: 'Consult' },
     { to: '/clinic/doctor/patients', label: 'Patient History', icon: 'Users', section: 'Consult' },
     { to: '/clinic/doctor/consultations', label: 'Consultations', icon: 'Stethoscope', section: 'Consult' },
-    { to: '/clinic/doctor/notes', label: 'Diagnoses and Clinical Notes', icon: 'NotebookPen', section: 'Clinical records' },
+    { to: '/clinic/doctor/notes', label: 'Diagnoses and Notes', icon: 'NotebookPen', section: 'Clinical records' },
     { to: '/clinic/doctor/prescriptions', label: 'Prescriptions', icon: 'Pill', section: 'Clinical records' },
     { to: '/clinic/doctor/lab-orders', label: 'Lab Orders and Reports', icon: 'FlaskConical', section: 'Clinical records' },
     { to: '/clinic/doctor/followups', label: 'Follow-ups', icon: 'BellRing', feature: 'followups', section: 'Follow-through' },

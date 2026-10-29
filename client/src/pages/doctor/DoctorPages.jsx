@@ -30,10 +30,10 @@ export function Consultations({ mode = 'active' }) {
   return (
     <div>
       <PageHeader title={titles[mode][0]} description={titles[mode][1]} />
-      <div className="mb-4 flex flex-wrap gap-2">
-        {mode !== 'history' && <Tabs value={status} onChange={(v) => { setStatus(v); setPage(1); }} tabs={[{ value: 'IN_PROGRESS', label: 'In progress' }, { value: 'COMPLETED', label: 'Completed' }, { value: '', label: 'All' }]} />}
-        <div className="relative ml-auto"><Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
-          <input className="field-sm pl-8" placeholder="Search diagnosis or symptoms" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} aria-label="Search" /></div>
+      <div className="mb-4 flex flex-col gap-3 sm:flex-row sm:items-end sm:justify-between">
+        {mode !== 'history' && <div className="min-w-0 flex-1"><Tabs className="mb-0" value={status} onChange={(v) => { setStatus(v); setPage(1); }} tabs={[{ value: 'IN_PROGRESS', label: 'In progress' }, { value: 'COMPLETED', label: 'Completed' }, { value: '', label: 'All' }]} /></div>}
+        <div className="relative w-full sm:w-72 sm:shrink-0"><Search className="pointer-events-none absolute left-2.5 top-1/2 h-4 w-4 -translate-y-1/2 text-ink-muted" />
+          <input className="field-sm w-full pl-8" placeholder="Search diagnosis or symptoms" value={q} onChange={(e) => { setQ(e.target.value); setPage(1); }} aria-label="Search" /></div>
       </div>
       <DataTable loading={list.isLoading} error={list.error} rows={list.data?.data}
         onRowClick={(c) => setOpen({ _id: c.appointmentId, patientId: c.patientId })}

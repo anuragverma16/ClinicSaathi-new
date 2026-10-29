@@ -62,9 +62,9 @@ export function PageHeader({ title, description, actions, children, icon }) {
   );
 }
 
-export function Tabs({ tabs, value, onChange }) {
+export function Tabs({ tabs, value, onChange, className = 'mb-4' }) {
   return (
-    <div role="tablist" className="mb-4 flex gap-1 overflow-x-auto border-b border-line">
+    <div role="tablist" className={`flex gap-1 overflow-x-auto border-b border-line ${className}`}>
       {tabs.map((t) => (
         <button key={t.value} role="tab" aria-selected={value === t.value} onClick={() => onChange(t.value)}
                 className={`-mb-px whitespace-nowrap border-b-2 px-3 py-2 text-sm transition-colors ${
