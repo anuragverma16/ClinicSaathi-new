@@ -1,0 +1,140 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+@layer base {
+  :root {
+    /* Light palette — the internal clinic/admin app's theme: navy text and
+       chrome, teal for action, white surfaces on a cool neutral page.
+       Unscoped, so every page uses it unless it sits inside .theme-dark. */
+    --ink-rgb: 11 31 58;
+    --ink-soft-rgb: 41 63 96;
+    --ink-muted-rgb: 94 110 133;
+    --paper-rgb: 244 247 251;
+    --paper-sunk-rgb: 234 239 245;
+    --surface-rgb: 255 255 255;
+    --pulse-rgb: 13 148 136;
+    --pulse-soft-rgb: 222 245 241;
+    --pulse-deep-rgb: 15 118 110;
+    --signal-rgb: 202 125 20;
+    --signal-soft-rgb: 252 240 220;
+    --alert-rgb: 196 58 49;
+    --alert-soft-rgb: 252 230 228;
+    --line-rgb: 223 229 238;
+  }
+
+  /* Dark palette — wraps only the public marketing site (MarketingLayout).
+     Same tokens, same components, no per-file class changes: everything
+     that already renders with bg-paper/text-ink/border-line/etc. re-themes
+     automatically inside this scope. */
+  .theme-dark {
+    --ink-rgb: 243 246 245;
+    --ink-soft-rgb: 201 211 208;
+    --ink-muted-rgb: 139 153 149;
+    --paper-rgb: 10 15 14;
+    --paper-sunk-rgb: 18 25 23;
+    --surface-rgb: 22 31 28;
+    --pulse-rgb: 23 198 168;
+    --pulse-soft-rgb: 15 38 32;
+    --pulse-deep-rgb: 53 224 192;
+    --signal-rgb: 240 169 77;
+    --signal-soft-rgb: 42 31 16;
+    --alert-rgb: 255 122 107;
+    --alert-soft-rgb: 42 21 18;
+    --line-rgb: 34 48 44;
+  }
+
+  /* Navy page banner (PageHeader). Re-points the same tokens so buttons,
+     inputs and muted text passed in as actions/children read on navy with
+     no per-page class changes. */
+  .hero-dark {
+    --ink-rgb: 255 255 255;
+    --ink-soft-rgb: 226 233 243;
+    --ink-muted-rgb: 168 186 211;
+    --surface-rgb: 22 45 79;
+    --paper-rgb: 18 38 68;
+    --paper-sunk-rgb: 32 60 99;
+    --line-rgb: 46 74 112;
+    --pulse-rgb: 20 184 166;
+    --pulse-deep-rgb: 13 148 136;
+    color-scheme: dark;
+  }
+
+  html { -webkit-font-smoothing: antialiased; }
+  body {
+    @apply bg-paper text-ink font-sans antialiased overflow-x-hidden;
+  }
+  :focus-visible {
+    outline: 2px solid rgb(var(--pulse-rgb));
+    outline-offset: 2px;
+  }
+}
+
+@layer components {
+  .field {
+    @apply block min-h-[44px] w-full min-w-0 rounded-xl border border-line bg-surface px-3.5 py-2.5 text-[15px] text-ink
+           shadow-[0_1px_2px_rgba(11,31,58,0.04)] transition-[border-color,box-shadow,background-color] duration-150
+           placeholder:text-ink-muted/60 hover:border-ink-muted/40
+           focus:border-pulse focus:outline-none focus:ring-4 focus:ring-pulse/15
+           disabled:cursor-not-allowed disabled:bg-paper-sunk disabled:text-ink-muted disabled:hover:border-line;
+  }
+  /* Native selects get the same chevron everywhere instead of each browser's own. */
+  select.field, select.field-sm {
+    @apply cursor-pointer appearance-none bg-no-repeat pr-10;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%235E6E85' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpath d='m6 9 6 6 6-6'/%3E%3C/svg%3E");
+    background-position: right 0.75rem center;
+    background-size: 1rem;
+  }
+  textarea.field { @apply min-h-[96px] resize-y leading-relaxed; }
+  input[type='checkbox'].field, input[type='radio'].field { @apply min-h-0 w-auto; }
+  .field-error .field, .field-error .field-sm { @apply border-alert/60 focus:border-alert focus:ring-alert/15; }
+  .label { @apply mb-1.5 block text-[13px] font-semibold text-ink-soft; }
+  input[type='checkbox'], input[type='radio'] { accent-color: rgb(var(--pulse-rgb)); }
+  .card { @apply rounded-2xl border border-line/80 bg-surface shadow-card; }
+  /* A card that reacts to the pointer — for clickable tiles, not tables. */
+  .card-hover { @apply transition-all duration-200 hover:-translate-y-0.5 hover:border-pulse/30 hover:shadow-lift; }
+  /* Soft tinted page background used behind every panel. */
+  .app-canvas {
+    background:
+      radial-gradient(1200px 400px at 100% -10%, rgb(13 148 136 / 0.07), transparent 60%),
+      radial-gradient(900px 380px at -10% 0%, rgb(99 102 241 / 0.06), transparent 55%),
+      rgb(var(--paper-rgb));
+  }
+  .btn {
+    /* transition-colors, not the generic `transition` (which also covers
+       opacity/transform): any button GSAP animates on entrance — the header
+       and hero CTAs — would otherwise have its own CSS transition racing
+       the JS-driven tween over those same properties, and lose, leaving the
+       button stuck at its animation's "from" state (opacity: 0) forever. */
+    @apply inline-flex items-center justify-center gap-2 rounded-lg px-4 py-2.5
+           text-[15px] font-medium transition-colors disabled:cursor-not-allowed disabled:opacity-50;
+  }
+  .btn-primary { @apply btn bg-pulse text-white hover:bg-pulse-deep; }
+  .btn-ghost { @apply btn border border-line bg-surface text-ink hover:bg-paper-sunk; }
+  .btn-quiet { @apply btn text-ink-muted hover:bg-paper-sunk hover:text-ink; }
+  .btn-danger { @apply btn border border-alert/30 bg-surface text-alert hover:bg-alert-soft; }
+  .btn-sm { @apply px-2.5 py-1.5 text-xs; }
+  .field-sm { @apply field min-h-[38px] w-auto rounded-lg py-1.5 text-sm; }
+  .section-title { @apply font-display text-[15px] font-semibold text-ink; }
+  .muted { @apply text-sm text-ink-muted; }
+}
+
+/* Respect the OS setting. Every GSAP timeline checks this too. */
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+/* Entrances as CSS keyframes: unlike an interrupted JS tween, these always
+   reach their end state, so nothing is ever left invisible. */
+@keyframes navIn { from { opacity: 0; transform: translateX(-12px); } to { opacity: 1; transform: none; } }
+@keyframes pageIn { from { opacity: 0; transform: translateY(8px); } to { opacity: 1; transform: none; } }
+@keyframes riseIn { from { opacity: 0; transform: translateY(10px) scale(.98); } to { opacity: 1; transform: none; } }
+.nav-in { animation: navIn .45s cubic-bezier(.2,.8,.2,1) both; }
+.page-in { animation: pageIn .35s ease-out both; }
+.rise-in { animation: riseIn .45s cubic-bezier(.2,.8,.2,1) both; }
+
+/* Sidebar flyout label */
+@keyframes fadeIn { from { opacity: 0; transform: translate(-4px, -50%); } to { opacity: 1; transform: translate(0, -50%); } }
