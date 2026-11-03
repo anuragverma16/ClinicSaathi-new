@@ -59,15 +59,19 @@
     color-scheme: dark;
   }
 
-  /* Dark palette for marketing site (existing) */
+  /* Dark palette for marketing site. Like the app's dark mode, the neutrals are
+     tinted towards the brand teal (hue ~173) instead of slate blue, so the
+     preloader, the public pages and the teal sign-in panel read as one palette
+     and the hand-off into the app after login has no colour jump. */
   .theme-dark {
-    --ink-rgb: 241 245 249;
-    --ink-soft-rgb: 203 213 225;
-    --ink-muted-rgb: 148 163 184;
-    --paper-rgb: 15 23 42;
-    --paper-sunk-rgb: 30 41 59;
-    --surface-rgb: 30 41 59;
-    /* Bright teal on the dark site: the light theme's deep teal vanishes on navy. */
+    --ink-rgb: 233 247 244;
+    --ink-soft-rgb: 204 224 222;
+    --ink-muted-rgb: 150 182 178;
+    --paper-rgb: 4 36 33;
+    --paper-sunk-rgb: 10 56 51;
+    --surface-rgb: 10 56 51;
+    /* Bright teal on the dark site: the light theme's deep teal vanishes on the
+       teal canvas. */
     --pulse-rgb: 20 184 166;
     --pulse-soft-rgb: 10 56 53;
     --pulse-deep-rgb: 94 234 212;
@@ -77,7 +81,7 @@
     --alert-soft-rgb: 67 20 7;
     --info-rgb: 125 211 252;
     --info-soft-rgb: 12 42 61;
-    --line-rgb: 51 65 85;
+    --line-rgb: 25 87 80;
     --on-pulse-rgb: 4 31 28;
     --navy-rgb: 5 76 68;
   }

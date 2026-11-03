@@ -12,7 +12,7 @@ for (const key of required) {
 
 export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
-  port: Number(process.env.PORT || 5000),
+  port: Number(process.env.PORT || 5002),
   clientUrl: process.env.CLIENT_URL || 'http://localhost:5173',
   // Public base URL of this API, used in links handed to outside services (calendar feeds).
   publicApiUrl: process.env.PUBLIC_API_URL,

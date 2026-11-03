@@ -18,7 +18,7 @@ reminders, recall and campaigns are recorded as *not queued* instead of being se
 cd server
 cp .env.example .env            # set MYSQL_PASSWORD to your MySQL root password, and the JWT secrets
 npm install
-npm run dev                     # API on :5000 — creates the database and all tables on first start
+npm run dev                     # API on :5002 — creates the database and all tables on first start
 npm run worker                  # background jobs (needs Redis)
 
 cd ../client && npm install && npm run dev      # app on :5173

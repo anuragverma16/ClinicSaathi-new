@@ -185,7 +185,7 @@ export function Preloader() {
       className="
         fixed inset-0 z-[100]
         flex items-center justify-center
-        overflow-hidden bg-[#071110]
+        overflow-hidden bg-paper
       "
     >
       {/* Accessibility */}
