@@ -67,6 +67,7 @@ import timezone from 'dayjs/plugin/timezone.js';
 
 // env carries secrets and config: openaiKey (enables LLM mode) and,
 // optionally, openaiModel (overrides the default model name).
+// To add your OpenAI key, see the "🔑 OPENAI API KEY" section below.
 import { env } from '../config/env.js';
 
 // toolDefinitions: JSON schemas sent to the model so it knows which tools exist.
@@ -100,8 +101,50 @@ dayjs.extend(timezone);
 // Tunable limits in one place. Change these rather than hunting for magic
 // numbers inside the functions.
 
-/** Model used for the LLM receptionist. Overridable via env.openaiModel. */
-const AI_MODEL = env.openaiModel || 'gpt-4o-mini';
+// ============================================================================
+// 🔑 OPENAI API KEY — ADD YOUR KEY HERE
+// ============================================================================
+// The key turns on the AI receptionist. Without a key, the bot still works
+// in rules mode (menu + simple booking), but cannot chat naturally.
+//
+// OPTION 1 (RECOMMENDED — safe): put the key in your project's .env file
+//
+//     OPENAI_API_KEY=sk-proj-xxxxxxxxxxxxxxxxxxxxxxxxxxxx
+//     OPENAI_MODEL=gpt-4o-mini            (optional)
+//
+//   and make sure config/env.js reads it, e.g.:
+//
+//     export const env = {
+//       openaiKey: process.env.OPENAI_API_KEY || '',
+//       openaiModel: process.env.OPENAI_MODEL || '',
+//       ...your other settings
+//     };
+//
+//   Then leave PASTE_OPENAI_KEY_HERE below empty.
+//
+// OPTION 2 (quick local testing only): paste the key between the quotes below.
+//   ⚠️ Never commit or share this file with a real key in it. Anyone who sees
+//   the key can use your OpenAI account and run up charges. If a key ever
+//   leaks, delete it at https://platform.openai.com/api-keys and make a new one.
+//
+// Get a key: https://platform.openai.com/api-keys
+// ============================================================================
+
+const PASTE_OPENAI_KEY_HERE = ''; // ← e.g. 'sk-proj-xxxxxxxxxxxxxxxxxxxxxxxx'
+
+/**
+ * The key actually used. Looked up in this order:
+ *   1. env.openaiKey          (config/env.js, usually loaded from .env)
+ *   2. process.env.OPENAI_API_KEY  (if config/env.js doesn't set openaiKey)
+ *   3. PASTE_OPENAI_KEY_HERE  (the line above)
+ * Empty → rules mode (no AI).
+ */
+const OPENAI_API_KEY = String(
+  env.openaiKey || process.env.OPENAI_API_KEY || PASTE_OPENAI_KEY_HERE || '',
+).trim();
+
+/** Model used for the LLM receptionist. Overridable via env.openaiModel or OPENAI_MODEL. */
+const AI_MODEL = env.openaiModel || process.env.OPENAI_MODEL || 'gpt-4o-mini';
 
 /** Abort an OpenAI request after this long so a patient is never left waiting. */
 const AI_TIMEOUT_MS = 20_000;
@@ -1101,7 +1144,8 @@ async function callModel(body) {
     try {
       const res = await fetch('https://api.openai.com/v1/chat/completions', {
         method: 'POST',
-        headers: { Authorization: `Bearer ${env.openaiKey}`, 'Content-Type': 'application/json' },
+        // OPENAI_API_KEY is set in the "🔑 OPENAI API KEY" section near the top.
+        headers: { Authorization: `Bearer ${OPENAI_API_KEY}`, 'Content-Type': 'application/json' },
         body: JSON.stringify(body),
         signal: controller.signal,
       });
@@ -1423,8 +1467,9 @@ export async function handleMessage({ clinicId, clinicName, conversationId, pati
   // Everything below can hit the database, tools or the AI API. Any failure is
   // caught at the end and turned into a polite reply + escalation.
   try {
-    // LLM mode is enabled simply by configuring an OpenAI key.
-    const llm = Boolean(env.openaiKey);
+    // LLM mode is enabled simply by configuring an OpenAI key
+    // (see the "🔑 OPENAI API KEY" section near the top of this file).
+    const llm = Boolean(OPENAI_API_KEY);
 
     // Current multi-step state (expired state is dropped here).
     const pending = readPending(convo);
