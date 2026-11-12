@@ -1,118 +1,126 @@
-import { useState } from 'react';
+import { useEffect, useMemo, useState } from 'react';
+import QRCode from 'qrcode';
 import { Download, Copy, X } from 'lucide-react';
 import toast from 'react-hot-toast';
 
-export function QRCodeDisplay({ clinicId, branchId, clinicName, branchName, onClose }) {
+export function QRCodeDisplay({
+  clinicSlug,
+  branchId,
+  clinicName,
+  branchName,
+  onClose,
+}) {
+  const [qrImageUrl, setQrImageUrl] = useState('');
   const [copied, setCopied] = useState(false);
+  const [loading, setLoading] = useState(false);
 
-  // Generate QR code value - this should be the registration URL
-  const origin = typeof window !== 'undefined' ? window.location.origin : 'http://localhost:5173';
-  const qrValue = clinicId && branchId ? `${origin}/patient-register-qr?qr=${String(clinicId)}-${String(branchId)}` : `${origin}/patient-register-qr?qr=test-clinic`;
+  const registrationUrl = useMemo(() => {
+    if (!clinicSlug || !branchId || typeof window === 'undefined') return '';
+    const url = new URL('/patient-register-qr', window.location.origin);
+    url.searchParams.set('clinic', clinicSlug);
+    url.searchParams.set('branch', String(branchId));
+    return url.toString();
+  }, [clinicSlug, branchId]);
 
-  // Use QR Server API to generate QR code image
-  const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=250x250&data=${encodeURIComponent(qrValue)}`;
+  useEffect(() => {
+    let cancelled = false;
 
-  console.log('QR Debug:', { clinicId, branchId, qrValue, qrImageUrl });
+    async function generate() {
+      if (!registrationUrl) {
+        setQrImageUrl('');
+        return;
+      }
 
-  const downloadQR = () => {
-    if (!qrImageUrl) {
-      toast.error('QR code not available');
-      return;
+      setLoading(true);
+      try {
+        const dataUrl = await QRCode.toDataURL(registrationUrl, {
+          width: 420,
+          margin: 2,
+          errorCorrectionLevel: 'H',
+          color: { dark: '#000000', light: '#FFFFFF' },
+        });
+        if (!cancelled) setQrImageUrl(dataUrl);
+      } catch (error) {
+        console.error('Patient QR generation failed:', error);
+        if (!cancelled) toast.error('Could not generate the QR code');
+      } finally {
+        if (!cancelled) setLoading(false);
+      }
     }
-    const link = document.createElement('a');
-    link.href = qrImageUrl;
-    link.download = `${clinicName}-${branchName}-qr.png`;
-    link.click();
-    toast.success('QR code downloaded!');
-  };
 
-  const copyLink = () => {
-    if (!qrValue) {
-      toast.error('Registration link not available');
-      return;
+    generate();
+    return () => { cancelled = true; };
+  }, [registrationUrl]);
+
+  async function copyLink() {
+    if (!registrationUrl) return;
+    try {
+      await navigator.clipboard.writeText(registrationUrl);
+      setCopied(true);
+      toast.success('Registration link copied');
+      window.setTimeout(() => setCopied(false), 1800);
+    } catch {
+      toast.error('Could not copy the link. Please copy it manually.');
     }
-    navigator.clipboard.writeText(qrValue);
-    setCopied(true);
-    toast.success('Registration link copied!');
-    setTimeout(() => setCopied(false), 2000);
-  };
+  }
+
+  function downloadQR() {
+    if (!qrImageUrl) return;
+    const anchor = document.createElement('a');
+    anchor.href = qrImageUrl;
+    anchor.download = `${(clinicSlug || 'clinic')}-${(branchName || 'branch').replace(/[^a-z0-9-_]/gi, '-')}-patient-registration-qr.png`;
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    toast.success('QR code downloaded');
+  }
 
   return (
-    <div className="fixed inset-0 z-50 flex items-start justify-center bg-black/50 p-4 overflow-y-auto pt-20">
-      <div className="bg-surface rounded-2xl shadow-lg w-full max-w-md p-6 space-y-5">
-        {/* Header */}
+    <div className="fixed inset-0 z-50 flex items-start justify-center overflow-y-auto bg-black/50 p-4 pt-20">
+      <div className="w-full max-w-md space-y-5 rounded-2xl bg-surface p-6 shadow-lg">
         <div className="flex items-center justify-between">
           <h2 className="text-xl font-bold text-ink">Patient Registration QR</h2>
-          <button
-            onClick={onClose}
-            className="p-2 hover:bg-paper rounded-lg transition-colors"
-          >
+          <button type="button" onClick={onClose} aria-label="Close QR dialog" className="rounded-lg p-2 transition-colors hover:bg-paper">
             <X className="h-5 w-5" />
           </button>
         </div>
 
-        {/* Clinic Info */}
-        <div className="text-center space-y-0.5">
-          <p className="text-xs text-ink-muted">Scanning QR will direct patients to:</p>
-          <p className="font-semibold text-ink text-sm">{clinicName}</p>
-          <p className="text-xs text-ink-soft">{branchName}</p>
+        <div className="space-y-0.5 text-center">
+          <p className="text-xs text-ink-muted">Patients will register at</p>
+          <p className="font-semibold text-ink">{clinicName || 'Clinic'}</p>
+          <p className="text-xs text-ink-soft">{branchName || 'Main branch'}</p>
         </div>
 
-        {/* QR Code */}
-        {qrImageUrl ? (
-          <div className="flex justify-center bg-white p-4 rounded-lg border border-line">
-            <img
-              src={qrImageUrl}
-              alt="Patient Registration QR Code"
-              className="w-44 h-44"
-              onError={(e) => {
-                console.error('QR code failed to load');
-                toast.error('QR code failed to load');
-              }}
-            />
-          </div>
-        ) : (
-          <div className="flex justify-center p-4">
-            <p className="text-sm text-ink-muted">Loading QR code...</p>
-          </div>
-        )}
+        <div className="flex min-h-64 items-center justify-center rounded-lg border border-line bg-white p-4">
+          {loading ? (
+            <p className="text-sm text-gray-500">Generating QR code…</p>
+          ) : qrImageUrl ? (
+            <img src={qrImageUrl} alt="Patient registration QR code" className="h-56 w-56 object-contain" />
+          ) : (
+            <p className="max-w-xs text-center text-sm text-red-600">
+              QR code unavailable. The clinic slug or branch ID is missing.
+            </p>
+          )}
+        </div>
 
-        {/* Instructions */}
-        <div className="bg-pulse-soft p-3 rounded-lg">
-          <p className="text-xs text-ink leading-relaxed">
-            📱 <strong>Instructions:</strong> Patients can scan this QR code to register themselves at your clinic. Share it at the reception desk or print it.
+        <div className="rounded-lg bg-pulse-soft p-3">
+          <p className="text-xs leading-relaxed text-ink">
+            <strong>Instructions:</strong> Patients can scan this code using their phone camera to open the clinic's patient registration form.
           </p>
         </div>
 
-        {/* Actions */}
-        <div className="space-y-1.5">
-          <button
-            onClick={downloadQR}
-            className="btn btn-primary w-full flex items-center justify-center gap-2"
-            disabled={!qrImageUrl}
-          >
-            <Download className="h-4 w-4" />
-            Download QR Code
+        <div className="space-y-2">
+          <button type="button" onClick={downloadQR} disabled={!qrImageUrl} className="btn btn-primary flex w-full items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-50">
+            <Download className="h-4 w-4" /> Download QR Code
           </button>
-          <button
-            onClick={copyLink}
-            className="btn btn-ghost w-full flex items-center justify-center gap-2"
-            disabled={!qrValue}
-          >
-            <Copy className="h-4 w-4" />
-            {copied ? 'Link Copied!' : 'Copy Registration Link'}
+          <button type="button" onClick={copyLink} disabled={!registrationUrl} className="btn btn-ghost flex w-full items-center justify-center gap-2 disabled:cursor-not-allowed disabled:opacity-50">
+            <Copy className="h-4 w-4" /> {copied ? 'Link Copied!' : 'Copy Registration Link'}
           </button>
         </div>
 
-        {/* Registration Link */}
         <div className="space-y-1.5">
-          <label className="text-xs font-semibold text-ink-soft">Registration Link</label>
-          <input
-            type="text"
-            value={qrValue}
-            readOnly
-            className="field w-full text-xs p-2"
-          />
+          <label htmlFor="patient-registration-url" className="text-xs font-semibold text-ink-soft">Registration link</label>
+          <input id="patient-registration-url" type="text" value={registrationUrl} readOnly className="field w-full p-2 text-xs" />
         </div>
       </div>
     </div>

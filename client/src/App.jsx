@@ -27,6 +27,7 @@ const BlogPost = lazy(() => import('./pages/public/BlogPost.jsx'));
 const About = lazy(() => import('./pages/public/About.jsx'));
 const Contact = lazy(() => import('./pages/public/Contact.jsx'));
 const PublicBooking = lazy(() => import('./pages/public/PublicBooking.jsx'));
+const PatientQRRegister = lazy(() => import('./pages/public/PatientQRRegister.jsx'));
 const PatientLogin = lazy(() => import('./pages/auth/PatientLogin.jsx'));
 const ForgotPassword = named(() => import('./pages/auth/PasswordReset.jsx'), 'ForgotPassword');
 const ResetPassword = named(() => import('./pages/auth/PasswordReset.jsx'), 'ResetPassword');
@@ -116,6 +117,7 @@ export default function App() {
           <Toaster position="top-right" toastOptions={{ style: { borderRadius: '10px', background: '#0B1F3A', color: '#FFFFFF', fontSize: '14px' } }} />
           <Suspense fallback={<RouteFallback />}>
             <Routes>
+              <Route path="/patient-register-qr" element={<PatientQRRegister />} />
               <Route element={<MarketingLayout />}>
                 <Route path="/" element={<Home />} />
                 <Route path="/features" element={<Features />} />

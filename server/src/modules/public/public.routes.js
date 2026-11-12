@@ -2,7 +2,7 @@ import { Router } from 'express';
 import { z } from 'zod';
 import dayjs from 'dayjs';
 import rateLimit from 'express-rate-limit';
-import { Clinic, Doctor, Service, Patient, Appointment } from '../../models/index.js';
+import { Clinic, Branch, Doctor, Service, Patient, Appointment } from '../../models/index.js';
 import { validate } from '../../middleware/validate.js';
 import { catchAsync } from '../../utils/catchAsync.js';
 import { ok, created } from '../../utils/respond.js';
@@ -56,6 +56,118 @@ const loadClinic = catchAsync(async (req, _res, next) => {
   req.tenant = { clinicId: clinic._id, branchId: null };
   next();
 });
+
+
+/**
+ * Patient registration through a clinic/branch QR code.
+ * The clinic is resolved from the public slug; the client never supplies a
+ * trusted clinicId. Branch ownership is checked against the resolved clinic.
+ */
+const qrPatientSchema = z.object({
+  name: z.string().trim().min(2).max(80),
+  phone: z.string().trim().min(10).max(18),
+  email: z.string().trim().email().optional().or(z.literal('')),
+  gender: z.enum(['MALE', 'FEMALE', 'OTHER']).optional(),
+  dob: z.string().optional().or(z.literal('')),
+  address: z.object({
+    city: z.string().trim().max(100).optional(),
+  }).optional(),
+  consentGiven: z.literal(true, {
+    errorMap: () => ({ message: 'Please accept the data processing consent' }),
+  }),
+  marketingConsent: z.boolean().optional(),
+});
+
+router.get('/qr/:slug/:branchId', loadClinic, catchAsync(async (req, res) => {
+  if (!objectId.safeParse(req.params.branchId).success) {
+    throw ApiError.notFound('Clinic branch not found');
+  }
+
+  const branch = await Branch.findOne({
+    _id: req.params.branchId,
+    isActive: true,
+  }).setOptions({ clinicId: req.clinic._id });
+
+  if (!branch) throw ApiError.notFound('Clinic branch not found');
+
+  ok(res, {
+    clinic: {
+      _id: req.clinic._id,
+      name: req.clinic.name,
+      slug: req.clinic.slug,
+    },
+    branch: {
+      _id: branch._id,
+      name: branch.name,
+    },
+  });
+}));
+
+router.post('/qr/:slug/:branchId/register', bookingLimiter, loadClinic, validate(qrPatientSchema), catchAsync(async (req, res) => {
+  const clinic = req.clinic;
+
+  if (!objectId.safeParse(req.params.branchId).success) {
+    throw ApiError.notFound('Clinic branch not found');
+  }
+
+  const branch = await Branch.findOne({
+    _id: req.params.branchId,
+    isActive: true,
+  }).setOptions({ clinicId: clinic._id });
+
+  if (!branch) throw ApiError.notFound('Clinic branch not found');
+
+  const phone = normalisePhone(req.body.phone);
+  const digits = phone.replace(/\D/g, '');
+
+  if (digits.length < 10 || digits.length > 15) {
+    throw ApiError.badRequest('Please enter a valid mobile number', 'INVALID_PHONE');
+  }
+
+  const existingPatient = await Patient.findOne({
+    phone,
+    guardianPatientId: { $exists: false },
+  })
+    .setOptions({ clinicId: clinic._id })
+    .select('name phone');
+
+  if (existingPatient) {
+    throw ApiError.conflict(
+      'This mobile number is already registered with this clinic. Please contact the clinic reception.',
+      'PATIENT_EXISTS',
+    );
+  }
+
+  const patient = await Patient.create({
+    clinicId: clinic._id,
+    branchId: branch._id,
+    name: req.body.name,
+    phone,
+    email: req.body.email || undefined,
+    gender: req.body.gender || undefined,
+    dob: req.body.dob || undefined,
+    address: req.body.address || undefined,
+    consent: {
+      dataProcessing: {
+        granted: true,
+        grantedAt: new Date(),
+        version: 'qr-registration-v1',
+      },
+      marketing: {
+        granted: Boolean(req.body.marketingConsent),
+        grantedAt: req.body.marketingConsent ? new Date() : undefined,
+      },
+    },
+  });
+
+  created(res, {
+    patientId: String(patient._id),
+    name: patient.name,
+    clinicName: clinic.name,
+    branchName: branch.name,
+    message: 'Patient registered successfully',
+  });
+}));
 
 router.get('/:slug', loadClinic, (req, res) => {
   const { name, slug, tagline, about, logoUrl, address, timings, phone, email, bookingPolicy } = req.clinic;

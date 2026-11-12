@@ -1,13 +1,13 @@
-import { useEffect, useState, useRef } from 'react';
+import { useEffect, useState } from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import { useMutation } from '@tanstack/react-query';
 import toast from 'react-hot-toast';
-import { QrCode, X } from 'lucide-react';
+import { CheckCircle2, QrCode } from 'lucide-react';
 import { api, unwrap } from '../../lib/api.js';
 import { PageHeader, Field, Section, fieldErrors } from '../../components/ui/Page.jsx';
 import { Spinner } from '../../components/ui/States.jsx';
 
-const EMPTY = {
+const INITIAL_FORM = {
   name: '',
   phone: '',
   email: '',
@@ -15,225 +15,191 @@ const EMPTY = {
   dob: '',
   city: '',
   consent: false,
-  marketing: false
+  marketing: false,
 };
 
 export default function PatientQRRegister() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const [f, setF] = useState(EMPTY);
+  const clinicSlug = searchParams.get('clinic') || '';
+  const branchId = searchParams.get('branch') || '';
+
+  const [form, setForm] = useState(INITIAL_FORM);
   const [errors, setErrors] = useState({});
   const [clinicInfo, setClinicInfo] = useState(null);
   const [loading, setLoading] = useState(true);
-  const [showScanner, setShowScanner] = useState(false);
-  const videoRef = useRef(null);
-  const canvasRef = useRef(null);
-  const [scanned, setScanned] = useState(false);
+  const [registeredPatient, setRegisteredPatient] = useState(null);
 
-  const set = (k, v) => setF((x) => ({ ...x, [k]: v }));
+  const update = (key, value) => setForm((current) => ({ ...current, [key]: value }));
 
-  // Get QR code from URL params
   useEffect(() => {
-    const qrCode = searchParams.get('qr');
+    let active = true;
 
-    if (qrCode) {
-      // Fetch clinic info using QR code
-      (async () => {
-        try {
-          const response = await api.get(`/clinics/qr/${qrCode}`).then(unwrap);
-          setClinicInfo(response);
-          setLoading(false);
-        } catch (error) {
-          toast.error('Invalid or expired QR code');
-          setLoading(false);
-        }
-      })();
-    } else {
-      setLoading(false);
+    async function loadClinic() {
+      if (!clinicSlug || !branchId) {
+        setLoading(false);
+        return;
+      }
+
+      try {
+        const data = await api
+          .get(`/public/qr/${encodeURIComponent(clinicSlug)}/${encodeURIComponent(branchId)}`)
+          .then(unwrap);
+
+        if (active) setClinicInfo(data);
+      } catch (error) {
+        if (active) toast.error(error.message || 'This clinic QR code is invalid or inactive');
+      } finally {
+        if (active) setLoading(false);
+      }
     }
-  }, [searchParams]);
 
-  const save = useMutation({
-    mutationFn: () => api.post('/patients', {
-      name: f.name,
-      phone: f.phone.startsWith('+') ? f.phone : `+91${f.phone.replace(/\D/g, '').slice(-10)}`,
-      email: f.email,
-      ...(f.gender ? { gender: f.gender } : {}),
-      dob: f.dob,
-      address: f.city ? { city: f.city } : undefined,
-      clinicId: clinicInfo?.clinic?._id,
-      branchId: clinicInfo?.branch?._id,
-      consent: {
-        dataProcessing: { granted: true },
-        marketing: { granted: f.marketing }
-      },
-    }).then(unwrap),
-    onSuccess: (p) => {
-      toast.success(`${p.name} registered successfully!`);
-      // Redirect to patient portal or confirmation page
-      navigate(`/patient-confirmation?patientId=${p._id}`);
-      setF(EMPTY);
-      setErrors({});
+    loadClinic();
+    return () => { active = false; };
+  }, [clinicSlug, branchId]);
+
+  const registration = useMutation({
+    mutationFn: async () => {
+      const digits = form.phone.replace(/\D/g, '');
+      let phone = form.phone.trim();
+
+      if (digits.length === 10) phone = `+91${digits}`;
+      else if (digits.length === 12 && digits.startsWith('91')) phone = `+${digits}`;
+
+      const payload = {
+        name: form.name.trim(),
+        phone,
+        email: form.email.trim(),
+        gender: form.gender || undefined,
+        dob: form.dob || undefined,
+        address: form.city.trim() ? { city: form.city.trim() } : undefined,
+        consentGiven: form.consent,
+        marketingConsent: form.marketing,
+      };
+
+      return api
+        .post(`/public/qr/${encodeURIComponent(clinicSlug)}/${encodeURIComponent(branchId)}/register`, payload)
+        .then(unwrap);
     },
-    onError: (e) => {
-      setErrors(fieldErrors(e));
-      toast.error(e.message);
+    onSuccess: (data) => {
+      setRegisteredPatient(data);
+      setErrors({});
+      toast.success('Patient registered successfully');
+    },
+    onError: (error) => {
+      setErrors(fieldErrors(error));
+      toast.error(error.message || 'Patient registration failed');
     },
   });
 
-  if (loading) return <div className="flex items-center justify-center min-h-screen"><Spinner /></div>;
+  if (loading) {
+    return <div className="flex min-h-screen items-center justify-center"><Spinner /></div>;
+  }
 
   if (!clinicInfo) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-paper">
-        <div className="text-center space-y-6 max-w-md">
-          <div className="flex justify-center">
-            <div className="h-24 w-24 rounded-full bg-pulse/10 flex items-center justify-center">
-              <QrCode className="h-12 w-12 text-pulse" />
-            </div>
+      <div className="flex min-h-screen items-center justify-center bg-paper p-5">
+        <div className="max-w-md space-y-4 text-center">
+          <QrCode className="mx-auto h-16 w-16 text-pulse" />
+          <h1 className="text-2xl font-bold text-ink">Invalid Registration QR</h1>
+          <p className="text-ink-muted">This QR code is invalid, incomplete, or the clinic branch is inactive. Please ask the clinic reception for a new QR code.</p>
+          <button type="button" onClick={() => navigate('/patient/login')} className="btn btn-primary">Go to Patient Login</button>
+        </div>
+      </div>
+    );
+  }
+
+  if (registeredPatient) {
+    return (
+      <div className="flex min-h-screen items-center justify-center bg-paper p-5">
+        <div className="w-full max-w-md space-y-4 rounded-2xl bg-surface p-8 text-center shadow-lg">
+          <CheckCircle2 className="mx-auto h-16 w-16 text-green-600" />
+          <h1 className="text-2xl font-bold text-ink">Registration Successful</h1>
+          <p className="text-ink-muted">Welcome, {registeredPatient.name}.</p>
+          <div className="rounded-lg bg-pulse-soft p-4">
+            <p className="text-sm text-ink-muted">Your Patient ID</p>
+            <p className="break-all text-lg font-bold text-ink">{registeredPatient.patientId}</p>
           </div>
-          <div>
-            <h1 className="text-2xl font-bold text-ink mb-2">Scan QR Code</h1>
-            <p className="text-ink-muted mb-6">
-              Ask the clinic staff for the QR code to register as a new patient.
-            </p>
-            <button
-              onClick={() => navigate('/patient-login')}
-              className="btn btn-primary"
-            >
-              Back to Login
-            </button>
-          </div>
+          <p className="text-sm text-ink-muted">Please keep this Patient ID for future reference. Contact the clinic if you need help accessing your patient portal.</p>
+          <button type="button" onClick={() => navigate('/patient/login')} className="btn btn-primary w-full">Go to Patient Login</button>
         </div>
       </div>
     );
   }
 
   return (
-    <div className="space-y-6">
-      <PageHeader
-        title="Patient Registration"
-        description={`Register at ${clinicInfo.clinic?.name} - ${clinicInfo.branch?.name}`}
-      />
+    <div className="min-h-screen bg-paper px-4 py-8">
+      <div className="mx-auto max-w-3xl space-y-6">
+        <PageHeader
+          title="Patient Registration"
+          description={`Register at ${clinicInfo.clinic.name} — ${clinicInfo.branch.name}`}
+        />
 
-      <Section>
-        <div className="space-y-6">
-          {/* Clinic Info Badge */}
-          <div className="rounded-lg border border-pulse/30 bg-pulse-soft px-4 py-3">
-            <p className="text-sm text-ink-muted">Registering at</p>
-            <p className="text-lg font-semibold text-ink">{clinicInfo.clinic?.name}</p>
-            <p className="text-sm text-ink-soft">{clinicInfo.branch?.name}</p>
-          </div>
-
-          {/* Registration Form */}
-          <form className="space-y-4" onSubmit={(e) => { e.preventDefault(); save.mutate(); }}>
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Full name" htmlFor="qr-name" error={errors.name}>
-                <input
-                  id="qr-name"
-                  className="field"
-                  value={f.name}
-                  onChange={(e) => set('name', e.target.value)}
-                  required
-                />
-              </Field>
-              <Field label="Mobile number" htmlFor="qr-phone" error={errors.phone}>
-                <input
-                  id="qr-phone"
-                  type="tel"
-                  className="field"
-                  value={f.phone}
-                  onChange={(e) => set('phone', e.target.value)}
-                  required
-                />
-              </Field>
+        <Section>
+          <div className="space-y-5">
+            <div className="rounded-lg border border-pulse/30 bg-pulse-soft px-4 py-3">
+              <p className="text-sm text-ink-muted">Registering at</p>
+              <p className="text-lg font-semibold text-ink">{clinicInfo.clinic.name}</p>
+              <p className="text-sm text-ink-soft">{clinicInfo.branch.name}</p>
             </div>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Email (optional)" htmlFor="qr-email">
-                <input
-                  id="qr-email"
-                  type="email"
-                  className="field"
-                  value={f.email}
-                  onChange={(e) => set('email', e.target.value)}
-                />
-              </Field>
-              <Field label="Gender (optional)" htmlFor="qr-gender">
-                <select
-                  id="qr-gender"
-                  className="field"
-                  value={f.gender}
-                  onChange={(e) => set('gender', e.target.value)}
-                >
-                  <option value="">Select gender</option>
-                  <option value="M">Male</option>
-                  <option value="F">Female</option>
-                  <option value="O">Other</option>
-                </select>
-              </Field>
-            </div>
+            <form
+              className="space-y-4"
+              onSubmit={(event) => {
+                event.preventDefault();
+                registration.mutate();
+              }}
+            >
+              <div className="grid gap-4 sm:grid-cols-2">
+                <Field label="Full name" htmlFor="qr-name" error={errors.name} required>
+                  <input id="qr-name" className="field" value={form.name} onChange={(event) => update('name', event.target.value)} minLength={2} maxLength={80} required />
+                </Field>
 
-            <div className="grid gap-4 sm:grid-cols-2">
-              <Field label="Date of Birth (optional)" htmlFor="qr-dob">
-                <input
-                  id="qr-dob"
-                  type="date"
-                  className="field"
-                  value={f.dob}
-                  onChange={(e) => set('dob', e.target.value)}
-                />
-              </Field>
-              <Field label="City (optional)" htmlFor="qr-city">
-                <input
-                  id="qr-city"
-                  className="field"
-                  value={f.city}
-                  onChange={(e) => set('city', e.target.value)}
-                />
-              </Field>
-            </div>
+                <Field label="Mobile number" htmlFor="qr-phone" error={errors.phone} required>
+                  <input id="qr-phone" type="tel" className="field" value={form.phone} onChange={(event) => update('phone', event.target.value)} placeholder="+91 9876543210" required />
+                </Field>
 
-            {/* Consent */}
-            <div className="space-y-3 pt-4 border-t border-line">
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="field mt-1"
-                  checked={f.consent}
-                  onChange={(e) => set('consent', e.target.checked)}
-                  required
-                />
-                <span className="text-sm text-ink">
-                  I consent to my health data being processed and stored securely at this clinic.
-                </span>
-              </label>
-              <label className="flex items-start gap-3 cursor-pointer">
-                <input
-                  type="checkbox"
-                  className="field mt-1"
-                  checked={f.marketing}
-                  onChange={(e) => set('marketing', e.target.checked)}
-                />
-                <span className="text-sm text-ink">
-                  I'd like to receive appointment reminders and health tips via WhatsApp or SMS.
-                </span>
-              </label>
-            </div>
+                <Field label="Email (optional)" htmlFor="qr-email" error={errors.email}>
+                  <input id="qr-email" type="email" className="field" value={form.email} onChange={(event) => update('email', event.target.value)} />
+                </Field>
 
-            {/* Submit */}
-            <div className="flex gap-3 pt-4">
-              <button
-                type="submit"
-                className="btn btn-primary flex-1"
-                disabled={!f.consent || save.isPending}
-              >
-                {save.isPending ? 'Registering...' : 'Complete Registration'}
+                <Field label="Gender (optional)" htmlFor="qr-gender" error={errors.gender}>
+                  <select id="qr-gender" className="field" value={form.gender} onChange={(event) => update('gender', event.target.value)}>
+                    <option value="">Select gender</option>
+                    <option value="MALE">Male</option>
+                    <option value="FEMALE">Female</option>
+                    <option value="OTHER">Other</option>
+                  </select>
+                </Field>
+
+                <Field label="Date of birth (optional)" htmlFor="qr-dob" error={errors.dob}>
+                  <input id="qr-dob" type="date" className="field" value={form.dob} onChange={(event) => update('dob', event.target.value)} />
+                </Field>
+
+                <Field label="City (optional)" htmlFor="qr-city">
+                  <input id="qr-city" className="field" value={form.city} onChange={(event) => update('city', event.target.value)} maxLength={100} />
+                </Field>
+              </div>
+
+              <div className="space-y-3 border-t border-line pt-4">
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input type="checkbox" checked={form.consent} onChange={(event) => update('consent', event.target.checked)} required />
+                  <span className="text-sm text-ink">I consent to my personal information being processed and stored securely by this clinic for registration and healthcare services.</span>
+                </label>
+
+                <label className="flex cursor-pointer items-start gap-3">
+                  <input type="checkbox" checked={form.marketing} onChange={(event) => update('marketing', event.target.checked)} />
+                  <span className="text-sm text-ink">I separately agree to receive optional promotional communications from this clinic.</span>
+                </label>
+              </div>
+
+              <button type="submit" disabled={!form.consent || registration.isPending} className="btn btn-primary w-full disabled:cursor-not-allowed disabled:opacity-50">
+                {registration.isPending ? 'Registering…' : 'Complete Registration'}
               </button>
-            </div>
-          </form>
-        </div>
-      </Section>
+            </form>
+          </div>
+        </Section>
+      </div>
     </div>
   );
 }
