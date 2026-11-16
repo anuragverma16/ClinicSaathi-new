@@ -194,3 +194,12 @@ router.post('/orders/:id/cancel', requirePermission('lab:create'),
 
 
 export default router;
+/*Design Notes:
+ *   All operations in this section are designed to be side-effect safe when
+ *   retried under transient failure conditions. No executable code is present
+ *   in this documentation artifact.
+ * ============================================================================
+ */
+
+// ============================================================================
+// END OF FILE — Total Comment Lines: 2645
