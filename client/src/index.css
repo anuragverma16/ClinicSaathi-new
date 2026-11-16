@@ -8,12 +8,12 @@
     --ink-rgb: 15 23 42;
     --ink-soft-rgb: 51 65 85;
     --ink-muted-rgb: 100 116 139;
-    --paper-rgb: 255 255 255;
-    --paper-sunk-rgb: 248 250 252;
+    --paper-rgb: 248 250 252;
+    --paper-sunk-rgb: 241 245 246;
     --surface-rgb: 255 255 255;
-    --pulse-rgb: 5 76 68;
+    --pulse-rgb: 15 124 116;
     --pulse-soft-rgb: 207 250 246;
-    --pulse-deep-rgb: 1 52 48;
+    --pulse-deep-rgb: 10 90 84;
     --signal-rgb: 245 158 11;
     --signal-soft-rgb: 254 252 232;
     --alert-rgb: 220 38 38;
@@ -24,7 +24,7 @@
     /* Text that sits on a filled --pulse surface (primary button). */
     --on-pulse-rgb: 255 255 255;
     /* Brand chrome: sidebar, page banner, auth panel, dialog scrims. */
-    --navy-rgb: 5 76 68;
+    --navy-rgb: 15 124 116;
     color-scheme: light;
   }
 
@@ -97,14 +97,18 @@
     --paper-rgb: 1 52 48;
     --paper-sunk-rgb: 3 65 59;
     --line-rgb: 17 105 96;
-    /* The banner is itself the brand teal, so the accent on top of it has to
-       be the lighter one — the sidebar's teal — or a primary button comes out
-       the same colour as the surface it is sitting on. */
-    --pulse-rgb: 45 212 191;
+    /* Primary buttons use the same dark teal as other buttons for consistency */
+    --pulse-rgb: 5 76 68;
     --pulse-soft-rgb: 7 99 89;
-    --pulse-deep-rgb: 94 234 212;
-    --on-pulse-rgb: 4 31 28;
+    --pulse-deep-rgb: 20 120 110;
+    --on-pulse-rgb: 255 255 255;
     color-scheme: dark;
+  }
+
+  /* Override btn-primary in hero to match btn-ghost styling */
+  .hero-dark .btn-primary {
+    @apply bg-surface text-white shadow-[0_1px_3px_rgba(5,76,68,0.3)]
+           hover:brightness-110 hover:shadow-[0_2px_8px_rgba(5,76,68,0.4)];
   }
 
   /* At night the banner is the brightest thing on the page. It already drops
@@ -186,8 +190,8 @@
   .btn-primary {
     /* White reads on the light theme's deep teal but not on the lighter one
        dark mode uses, so the label colour is a token of its own. */
-    @apply btn bg-pulse text-on-pulse shadow-[0_1px_3px_rgba(20,184,166,0.2)]
-           hover:brightness-110 hover:shadow-[0_2px_8px_rgba(20,184,166,0.35)];
+    @apply btn bg-pulse text-on-pulse shadow-[0_1px_3px_rgba(15,124,116,0.2)]
+           hover:brightness-110 hover:shadow-[0_2px_8px_rgba(15,124,116,0.35)];
   }
   .btn-ghost {
     @apply btn border border-line bg-surface text-ink

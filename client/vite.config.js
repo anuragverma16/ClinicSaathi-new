@@ -7,7 +7,7 @@ export default defineConfig(({ mode }) => {
   const env = loadEnv(mode, process.cwd(), '');
 
   // Backend URL (Default 127.0.0.1 use karein instead of localhost)
-  const backendTarget = env.API_PROXY_TARGET || 'http://127.0.0.1:5000';
+  const backendTarget = env.API_PROXY_TARGET || 'http://127.0.0.1:5002';
 
   return {
     plugins: [react()],
