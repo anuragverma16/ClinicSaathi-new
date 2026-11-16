@@ -445,9 +445,6 @@ export function interpret(text, doctors) {
     date: parseDate(text),
     ...parseTimeWindow(text),
   };
-<<<<<<< HEAD
-}
-=======
 }
 /**
  * ============================================================================
@@ -3094,4 +3091,3 @@ export function interpret(text, doctors) {
 // ============================================================================
 // END OF FILE — Total Comment Lines: 2645
 // ============================================================================
->>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970

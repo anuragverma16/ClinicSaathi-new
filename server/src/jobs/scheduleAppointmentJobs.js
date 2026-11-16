@@ -1108,8 +1108,6 @@ export async function cancelAppointmentJobs(appointmentId) {
 
 // Remove the review-request job associated with this appointment.
 
-<<<<<<< HEAD
-=======
 /**
  * ============================================================================
  *  VIRTUAL RECEPTIONIST & WORKFLOW ENGINE — EXTENDED TECHNICAL DOCUMENTATION
@@ -3755,4 +3753,3 @@ export async function cancelAppointmentJobs(appointmentId) {
 // ============================================================================
 // END OF FILE — Total Comment Lines: 2645
 // ============================================================================
->>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970

@@ -16,10 +16,6 @@ import Login from './pages/auth/Login.jsx';
 /**
  * Everything else is split out and arrives on first navigation to that route.
  * Recharts alone is ~400kB, and a receptionist who never opens Analytics
-<<<<<<< HEAD
-=======
- * sample comment added
->>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
  * shouldn't download it, nor should a visitor reading the blog.
  */
 const named = (loader, name) => lazy(() => loader().then((m) => ({ default: m[name] })));

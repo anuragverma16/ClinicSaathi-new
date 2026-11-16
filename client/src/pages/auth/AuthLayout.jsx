@@ -4,11 +4,7 @@ import { PulseLine } from '../../components/marketing/illustrations.jsx';
 /** Split-screen frame shared by every sign-in page: brand panel left, form right. */
 export function AuthLayout({ children, heading = 'The AI-powered operating system for modern clinics.', sub }) {
   return (
-<<<<<<< HEAD
     <div className="grid min-h-screen lg:grid-cols-[7fr_13fr]">
-=======
-    <div className="grid min-h-screen lg:grid-cols-[1.05fr_1fr]">
->>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
       <div className="relative hidden overflow-hidden bg-navy px-12 py-10 text-white lg:flex lg:flex-col lg:justify-between">
         <div className="pointer-events-none absolute -right-24 -top-24 h-[420px] w-[420px] rounded-full bg-pulse/25 blur-3xl" aria-hidden="true" />
         <div className="pointer-events-none absolute -bottom-28 -left-16 h-[360px] w-[360px] rounded-full bg-pulse/15 blur-3xl" aria-hidden="true" />
@@ -21,13 +17,8 @@ export function AuthLayout({ children, heading = 'The AI-powered operating syste
         </div>
         <p className="relative text-xs text-navy-text/70">© {new Date().getFullYear()} ClinicSaathi · Built for clinics in India</p>
       </div>
-<<<<<<< HEAD
       <div className="flex items-center justify-start bg-paper px-5 py-10 lg:justify-center">
         <div className="w-full max-w-sm lg:mr-24">
-=======
-      <div className="flex items-center justify-center bg-paper px-5 py-10">
-        <div className="w-full max-w-sm">
->>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
           <div className="mb-8 lg:hidden"><Logo /></div>
           {children}
         </div>
