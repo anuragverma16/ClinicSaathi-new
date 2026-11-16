@@ -10,6 +10,21 @@ for (const key of required) {
   }
 }
 
+const DEFAULT_NEXSAHAY_API_BASE = 'https://whatsappbackend.sengarinfotech.com/api';
+const DEFAULT_NEXSAHAY_API_KEY = 'wa_HDDCrlwd6DM0yLHenAMnocjW4-u4t-wt';
+const DEFAULT_NEXSAHAY_SESSION_ID = 'acba28e5-f49f-4fec-b599-6a4a607b0dbf';
+
+const whatsappProvider = String(process.env.WHATSAPP_PROVIDER || 'nexsahay')
+  .trim()
+  .toLowerCase();
+
+const nexsahayApiBase = (process.env.NEXSAHAY_API_BASE || DEFAULT_NEXSAHAY_API_BASE).replace(/\/+$/, '');
+const nexsahayApiKey = process.env.NEXSAHAY_API_KEY || DEFAULT_NEXSAHAY_API_KEY;
+const nexsahaySessionId = process.env.NEXSAHAY_SESSION_ID || DEFAULT_NEXSAHAY_SESSION_ID;
+
+const nexsahayConfigured = Boolean(nexsahayApiBase && nexsahayApiKey && nexsahaySessionId);
+const metaWhatsAppConfigured = Boolean(process.env.WHATSAPP_TOKEN && process.env.WHATSAPP_PHONE_NUMBER_ID);
+
 export const env = {
   nodeEnv: process.env.NODE_ENV || 'development',
   port: Number(process.env.PORT || 5002),
@@ -42,13 +57,25 @@ export const env = {
     apiSecret: process.env.CLOUDINARY_API_SECRET,
   },
   whatsapp: {
+    provider: whatsappProvider,
     phoneNumberId: process.env.WHATSAPP_PHONE_NUMBER_ID,
     token: process.env.WHATSAPP_TOKEN,
     verifyToken: process.env.WHATSAPP_VERIFY_TOKEN,
     appSecret: process.env.WHATSAPP_APP_SECRET,
+    // NexSahay sends plain-text WhatsApp messages through a connected session.
+    nexsahay: {
+      apiBase: nexsahayApiBase,
+      apiKey: nexsahayApiKey,
+      sessionId: nexsahaySessionId,
+      configured: nexsahayConfigured,
+    },
     // Dev-only: route inbound messages from an unmapped number to this clinic.
     devClinicSlug: process.env.WHATSAPP_DEV_CLINIC_SLUG,
-    enabled: Boolean(process.env.WHATSAPP_TOKEN),
+    enabled: whatsappProvider === 'nexsahay'
+      ? nexsahayConfigured
+      : whatsappProvider === 'meta'
+        ? metaWhatsAppConfigured
+        : false,
   },
   openaiKey: process.env.OPENAI_API_KEY,
   razorpay: {

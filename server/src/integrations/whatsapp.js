@@ -2,20 +2,89 @@ import crypto from 'node:crypto';
 import { env } from '../config/env.js';
 import { recordStub } from './stubOutbox.js';
 
-const API = 'https://graph.facebook.com/v20.0';
+const META_API = 'https://graph.facebook.com/v20.0';
+
+function nexsahayRecipient(to) {
+  const recipient = String(to || '').trim();
+  // Preserve group/contact JIDs (e.g. 919876543210@s.whatsapp.net or @g.us)
+  if (recipient.includes('@')) return recipient;
+
+  // Strip all non-digits (spaces, +, -, etc.)
+  const digits = recipient.replace(/\D/g, '');
+  if (!digits) return '';
+
+  // Auto-prepend India country code '91' if a standard 10-digit mobile number is passed
+  if (digits.length === 10) {
+    return `91${digits}`;
+  }
+  return digits;
+}
+
+async function sendViaNexSahay({ to, body }) {
+  if (!body || !String(body).trim()) {
+    throw new Error('NexSahay supports plain-text messages. A message body is required.');
+  }
+
+  const { apiBase, apiKey, sessionId } = env.whatsapp.nexsahay;
+  if (!apiBase || !apiKey || !sessionId) {
+    throw new Error('NexSahay is selected but NEXSAHAY_API_BASE, NEXSAHAY_API_KEY, or NEXSAHAY_SESSION_ID is missing.');
+  }
+
+  const recipient = nexsahayRecipient(to);
+  if (!recipient) throw new Error('A valid WhatsApp recipient number is required.');
+
+  const response = await fetch(`${apiBase}/messages/send`, {
+    method: 'POST',
+    headers: {
+      'Content-Type': 'application/json',
+      'x-api-key': apiKey,
+    },
+    body: JSON.stringify({
+      sessionId,
+      to: recipient,
+      message: String(body).trim(),
+    }),
+  });
+
+  const responseText = await response.text();
+  let result;
+  try {
+    result = responseText ? JSON.parse(responseText) : {};
+  } catch {
+    throw new Error(`NexSahay returned an invalid JSON response (HTTP ${response.status}).`);
+  }
+
+  if (!response.ok || result.success !== true || result.data?.sent !== true) {
+    const reason = result.message || result.error || `HTTP ${response.status}`;
+    throw new Error(`NexSahay WhatsApp send failed: ${String(reason).slice(0, 300)}`);
+  }
+
+  return {
+    messageId: result.data.waMessageId || result.data.messageId,
+    providerMessageId: result.data.messageId,
+    provider: 'nexsahay',
+  };
+}
 
 /**
- * Meta WhatsApp Cloud API sender.
- *
- * Template vs free-form: a free-form `body` is only deliverable inside the
- * 24-hour customer service window opened by the patient's last inbound message.
- * Everything the clinic initiates must use an approved `templateName`.
+ * Sends a WhatsApp message through the configured provider.
+ * NexSahay supports plain-text messages; Meta Cloud API supports both approved
+ * templates and free-form text (subject to Meta's 24-hour service-window rules).
  */
 export async function sendWhatsApp({ to, templateName, variables = {}, body, languageCode = 'en' }) {
   if (!env.whatsapp.enabled) {
     console.log(`[whatsapp:stub] -> ${to} :: ${templateName || body}`);
     recordStub({ channel: 'WHATSAPP', to, templateName, variables, body });
     return { messageId: `stub_${Date.now()}`, stub: true };
+  }
+
+  if (env.whatsapp.provider === 'nexsahay') {
+    const resolvedBody = body || (templateName ? `${templateName}: ${Object.values(variables).join(', ')}` : '');
+    return sendViaNexSahay({ to, body: resolvedBody });
+  }
+
+  if (env.whatsapp.provider !== 'meta') {
+    throw new Error(`Unsupported WHATSAPP_PROVIDER: ${env.whatsapp.provider}`);
   }
 
   const payload = templateName
@@ -34,7 +103,7 @@ export async function sendWhatsApp({ to, templateName, variables = {}, body, lan
       }
     : { messaging_product: 'whatsapp', to, type: 'text', text: { body } };
 
-  const res = await fetch(`${API}/${env.whatsapp.phoneNumberId}/messages`, {
+  const res = await fetch(`${META_API}/${env.whatsapp.phoneNumberId}/messages`, {
     method: 'POST',
     headers: {
       Authorization: `Bearer ${env.whatsapp.token}`,
@@ -45,7 +114,7 @@ export async function sendWhatsApp({ to, templateName, variables = {}, body, lan
 
   if (!res.ok) throw new Error(`WhatsApp send failed (${res.status}): ${(await res.text()).slice(0, 300)}`);
   const data = await res.json();
-  return { messageId: data.messages?.[0]?.id };
+  return { messageId: data.messages?.[0]?.id, provider: 'meta' };
 }
 
 export function verifyWebhook(req) {
