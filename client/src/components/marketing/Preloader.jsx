@@ -201,7 +201,11 @@ export function Preloader() {
           pointer-events-none absolute
           h-[500px] w-[500px]
           rounded-full
+<<<<<<< HEAD
           bg-[radial-gradient(circle,rgba(15,124,116,0.08)_0%,rgba(15,124,116,0.03)_35%,transparent_70%)]
+=======
+          bg-[radial-gradient(circle,rgba(20,184,166,0.15)_0%,rgba(20,184,166,0.06)_35%,transparent_70%)]
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
           blur-3xl
         "
       />
@@ -212,7 +216,11 @@ export function Preloader() {
         className="
           pointer-events-none absolute
           h-[320px] w-[320px]
+<<<<<<< HEAD
           rounded-full border border-teal-500/[0.12]
+=======
+          rounded-full border border-teal-400/[0.08]
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
         "
       />
 
@@ -221,7 +229,11 @@ export function Preloader() {
         className="
           pointer-events-none absolute
           h-[430px] w-[430px]
+<<<<<<< HEAD
           rounded-full border border-teal-500/[0.06]
+=======
+          rounded-full border border-teal-400/[0.035]
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
         "
       />
 
@@ -233,14 +245,24 @@ export function Preloader() {
           <span
             className="
               h-[6px] w-[6px] rounded-full
+<<<<<<< HEAD
               bg-teal-600
+=======
+              bg-teal-400
+              shadow-[0_0_14px_rgba(20,184,166,0.9)]
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
             "
           />
 
           <span
             className="
               text-[11px] font-semibold uppercase
+<<<<<<< HEAD
               tracking-[0.32em] text-teal-600
+=======
+              tracking-[0.32em] text-teal-300/85
+              drop-shadow-[0_0_10px_rgba(20,184,166,0.35)]
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
               sm:text-xs
             "
           >
@@ -250,7 +272,12 @@ export function Preloader() {
           <span
             className="
               h-[6px] w-[6px] rounded-full
+<<<<<<< HEAD
               bg-teal-600
+=======
+              bg-teal-400
+              shadow-[0_0_14px_rgba(20,184,166,0.9)]
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
             "
           />
         </div>
@@ -264,7 +291,11 @@ export function Preloader() {
             className="
               pointer-events-none absolute
               h-32 w-32 rounded-full
+<<<<<<< HEAD
               bg-teal-500/20 blur-lg
+=======
+              bg-teal-400/30 blur-lg
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
             "
           />
 
@@ -279,6 +310,7 @@ export function Preloader() {
               viewBox="0 0 120 120"
               fill="none"
               xmlns="http://www.w3.org/2000/svg"
+<<<<<<< HEAD
             >
               {/* Head */}
               <circle cx="60" cy="35" r="20" fill="#0F7C74" opacity="1" />
@@ -288,18 +320,36 @@ export function Preloader() {
 
               {/* Medical Cross on Chest */}
               <g opacity="0.9">
+=======
+              className="drop-shadow-[0_0_20px_rgba(20,184,166,0.4)]"
+            >
+              {/* Head */}
+              <circle cx="60" cy="35" r="20" fill="#14B8A6" opacity="0.9" />
+
+              {/* Body - Torso */}
+              <rect x="42" y="58" width="36" height="35" rx="4" fill="#14B8A6" opacity="0.85" />
+
+              {/* Medical Cross on Chest */}
+              <g opacity="0.7">
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
                 <rect x="54" y="68" width="3" height="14" fill="white" />
                 <rect x="49" y="73" width="14" height="3" fill="white" />
               </g>
 
               {/* Left Arm */}
               <g>
+<<<<<<< HEAD
                 <rect x="28" y="65" width="16" height="12" rx="6" fill="#0F7C74" opacity="0.9" />
                 <circle cx="28" cy="71" r="5" fill="#0F7C74" opacity="0.9" />
+=======
+                <rect x="28" y="65" width="16" height="12" rx="6" fill="#14B8A6" opacity="0.8" />
+                <circle cx="28" cy="71" r="5" fill="#14B8A6" opacity="0.8" />
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
               </g>
 
               {/* Right Arm */}
               <g>
+<<<<<<< HEAD
                 <rect x="76" y="65" width="16" height="12" rx="6" fill="#0F7C74" opacity="0.9" />
                 <circle cx="92" cy="71" r="5" fill="#0F7C74" opacity="0.9" />
               </g>
@@ -309,15 +359,34 @@ export function Preloader() {
 
               {/* Right Leg */}
               <rect x="64" y="95" width="8" height="20" rx="4" fill="#0F7C74" opacity="0.9" />
+=======
+                <rect x="76" y="65" width="16" height="12" rx="6" fill="#14B8A6" opacity="0.8" />
+                <circle cx="92" cy="71" r="5" fill="#14B8A6" opacity="0.8" />
+              </g>
+
+              {/* Left Leg */}
+              <rect x="48" y="95" width="8" height="20" rx="4" fill="#14B8A6" opacity="0.8" />
+
+              {/* Right Leg */}
+              <rect x="64" y="95" width="8" height="20" rx="4" fill="#14B8A6" opacity="0.8" />
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
 
               {/* Stethoscope around neck - decorative */}
               <path
                 d="M 45 55 Q 60 65 75 55"
+<<<<<<< HEAD
                 stroke="#0F7C74"
                 strokeWidth="2.5"
                 fill="none"
                 strokeLinecap="round"
                 opacity="0.8"
+=======
+                stroke="#5EEAD4"
+                strokeWidth="2.5"
+                fill="none"
+                strokeLinecap="round"
+                opacity="0.7"
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
               />
             </svg>
           </div>
@@ -340,10 +409,19 @@ export function Preloader() {
             "
             style={{
               background:
+<<<<<<< HEAD
                 'linear-gradient(135deg, #0F7C74 0%, #1B9B8F 50%, #27B5A5 100%)',
               WebkitBackgroundClip: 'text',
               WebkitTextFillColor: 'transparent',
               backgroundClip: 'text',
+=======
+                'linear-gradient(135deg, #ffffff 0%, #CCFBF5 28%, #5EEAD4 58%, #14B8A6 100%)',
+              WebkitBackgroundClip: 'text',
+              WebkitTextFillColor: 'transparent',
+              backgroundClip: 'text',
+              filter:
+                'drop-shadow(0 0 20px rgba(20,184,166,0.18))',
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
             }}
           >
             {BRAND}
@@ -354,7 +432,12 @@ export function Preloader() {
         <p
           className="
             mt-6 text-center text-xs font-semibold uppercase
+<<<<<<< HEAD
             tracking-[0.28em] text-teal-700
+=======
+            tracking-[0.28em] text-teal-100/75
+            drop-shadow-[0_0_12px_rgba(20,184,166,0.2)]
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
             sm:text-sm
           "
         >
@@ -365,15 +448,25 @@ export function Preloader() {
         <div
           className="
             mt-10 h-[2px] w-40 overflow-hidden
+<<<<<<< HEAD
             rounded-full bg-teal-200 sm:w-56
+=======
+            rounded-full bg-white/[0.10] sm:w-56
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
           "
         >
           <div
             ref={progressRef}
             className="
               h-full w-full origin-left rounded-full
+<<<<<<< HEAD
               bg-gradient-to-r from-teal-500
               via-teal-600 to-teal-700
+=======
+              bg-gradient-to-r from-emerald-400
+              via-teal-300 to-white
+              shadow-[0_0_15px_rgba(20,184,166,0.75)]
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
             "
           />
         </div>
@@ -383,7 +476,11 @@ export function Preloader() {
           <span
             className="
               text-[10px] font-medium uppercase
+<<<<<<< HEAD
               tracking-[0.28em] text-teal-600
+=======
+              tracking-[0.28em] text-emerald-100/50
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
               sm:text-[11px]
             "
           >
@@ -399,7 +496,11 @@ export function Preloader() {
           absolute bottom-8 left-1/2
           h-px w-20 -translate-x-1/2
           bg-gradient-to-r from-transparent
+<<<<<<< HEAD
           via-teal-400/40 to-transparent
+=======
+          via-emerald-300/30 to-transparent
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
         "
       />
     </div>

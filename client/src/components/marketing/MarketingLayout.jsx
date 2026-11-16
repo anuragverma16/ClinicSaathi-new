@@ -22,7 +22,11 @@ export function MarketingLayout() {
   }, [location.pathname, location.hash]);
 
   return (
+<<<<<<< HEAD
     <div className="min-h-screen bg-paper text-ink">
+=======
+    <div className="theme-dark min-h-screen bg-paper text-ink">
+>>>>>>> 76ab79b754f3cd0e07df2ffb5854e3fc6c0c6970
       <Preloader />
       <MarketingHeader />
       <main ref={mainRef}>
