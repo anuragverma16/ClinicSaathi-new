@@ -1,0 +1,26 @@
+# Local services for development: MySQL (the database) and Redis (background jobs).
+services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: clinicsaathi
+    command: ["--character-set-server=utf8mb4", "--collation-server=utf8mb4_bin"]
+    ports: ["3306:3306"]
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./database/schema.sql:/docker-entrypoint-initdb.d/schema.sql:ro
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 5s
+      retries: 20
+
+  redis:
+    image: redis:7-alpine
+    ports: ["6379:6379"]
+    volumes: [redis_data:/data]
+
+volumes:
+  mysql_data:
+  redis_data:
